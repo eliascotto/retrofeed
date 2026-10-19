@@ -1,0 +1,2 @@
+# Ensure tailwind.css is always compiled
+app/assets/builds/tailwind.css

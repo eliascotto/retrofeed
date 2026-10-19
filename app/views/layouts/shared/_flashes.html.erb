@@ -1,0 +1,5 @@
+<div id="flashes" class="flashes" role="status">
+  <% flash.each do |type, message| %>
+    <%= render "layouts/shared/flash", message: message, level: flash_level(type) %>
+  <% end %>
+</div>

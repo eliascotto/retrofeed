@@ -1,0 +1,150 @@
+<!-- Single Site page -->
+<main class="flex-1 flex flex-col min-w-0 h-full">
+  <%= render PageHeaderComponent.new(
+      back_path: sites_path,
+      external_link_url: "https://#{@website.domain}",
+      external_link_text: "Visit"
+  ) %>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto">
+    <div class="mx-auto px-5 py-2">
+
+      <!-- Website Header -->
+      <div class="flex flex-row justify-between mb-6 mt-4">
+        <div class="flex flex-row items-center gap-4">
+          <div class="shrink-0 w-12 h-12 flex items-center justify-center">
+            <!-- Favicon or initials -->
+            <% if @website.favicon.attached? %>
+              <%= image_tag url_for(@website.favicon), alt: "", class: "w-12 h-12 rounded-lg object-contain ring-1 ring-base-200 dark:ring-base-300" %>
+            <% else %>
+              <div class="w-12 h-12 rounded-lg bg-base-200 dark:bg-base-300 flex items-center justify-center ring-1 ring-base-200 dark:ring-base-300">
+                <span class="text-lg font-medium text-base-content/50"><%= (@website.name.presence || @website.domain)[0].upcase %></span>
+              </div>
+            <% end %>
+          </div>
+          <div class="flex-1 min-w-0">
+            <!-- Title -->
+            <h1 class="text-2xl font-bold text-base-content"><%= @website.name.presence || @website.domain %></h1>
+            <!-- Domain -->
+            <% if @website.origin.present? %>
+              <a href="<%= @website.origin %>" target="_blank"  class="text-sm text-base-content/60 mt-1 underline">
+                <%= @website.domain %>
+              </a>
+            <% else %>
+              <p class="text-sm text-base-content/60 mt-1"><%= @website.domain %></p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats & Sort -->
+      <div class="flex flex-row items-center justify-between mb-2">
+        <div>
+            <!-- Article Filters -->
+            <% if @filter_saved_count > 0 || @filter_read_count > 0 || @filter_removed_count > 0 %>
+                <div class="flex items-center gap-2">
+                    <%
+                        filter_options = [{ key: "all", label: "All" }]
+                        filter_options << { key: "saved",   label: "Saved"   } if @filter_saved_count > 0
+                        filter_options << { key: "read",    label: "Read"    } if @filter_read_count > 0
+                        filter_options << { key: "removed", label: "Removed" } if @filter_removed_count > 0
+                    %>
+                    <% filter_options.each do |opt| %>
+                        <% is_active = @filter == opt[:key] %>
+                        <%= link_to opt[:label],
+                            site_path(@website, filter: opt[:key], sort: @sort, order: @order),
+                            class: is_active ? "text-xs text-base-content font-medium" : "text-xs text-base-content/40 hover:text-base-content/70",
+                            aria: { current: is_active ? "page" : nil } %>
+                    <% end %>
+                </div>
+            <% end %>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Refresh button -->
+          <% if current_user.admin? %>
+            <div class="ml-1 text-base-content/50"
+                data-controller="refresh"
+                data-refresh-url-value="<%= site_refresh_path(@website) %>"
+                data-refresh-csrf-token-value="<%= form_authenticity_token %>">
+              <button data-refresh-target="button"
+                      data-action="click->refresh#refresh"
+                      class="btn btn-ghost btn-xs gap-1"
+                      title="<%= @website.last_crawled_at ? "Updated #{time_ago_in_words(@website.last_crawled_at)} ago" : "Refresh articles" %>">
+                <%= icon_tag "refresh-cw", class: "w-3 h-3" %>
+              </button>
+            </div>
+          <% end %>
+
+          <!-- Sort Controls -->
+          <div class="flex items-center">
+            <% sort_options = [
+              { key: "date", label: "Date" },
+              { key: "title", label: "Title" }
+            ] %>
+            <% if @total_articles_with_content_count > 0 %>
+              <% sort_options << { key: "words", label: "Words" } %>
+            <% end %>
+
+            <% sort_options.each do |opt| %>
+              <%
+                is_active = @sort == opt[:key]
+                next_order = (is_active && @order == "desc") ? "asc" : "desc"
+              %>
+              <%= link_to site_path(@website, sort: opt[:key], order: is_active ? next_order : "desc", filter: @filter),
+                  class: "btn btn-xs shadow-none #{is_active ? 'btn-soft btn-primary' : 'btn-ghost text-base-200'}" do %>
+                <%= opt[:label] %>
+                <% if is_active %>
+                  <%= icon_tag "arrow-#{@order == 'asc' ? 'up' : 'down'}-wide-narrow", class: "w-3 h-3" %>
+                <% end %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="text-xs text-base-content/50 flex items-center gap-2 mb-2">
+        <span data-progress-text>
+          <% if @read_count > 0 %>
+            <%= @read_count %>/<%= @total_articles_count %> read
+          <% else %>
+            <%= @total_articles_count %> articles
+          <% end %>
+        </span>
+        <% if @has_errors && @failed_count > 0 && current_user.admin? %>
+          <span class="text-warning" title="<%= @failed_count %> articles failed to process">
+            (<%= @failed_count %> failed)
+          </span>
+        <% end %>
+      </div>
+
+      <!-- Articles List -->
+      <% if @articles.any? %>
+        <div class="space-y-1" data-article-list>
+          <% @articles.each do |article| %>
+            <% is_read = @read_article_ids.include?(article.id) %>
+            <% is_new = @previous_last_seen && article.created_at > @previous_last_seen %>
+            <% read_at = @read_at_by_article_id[article.id] %>
+            <% in_read_next = @read_next_article_ids.include?(article.id) %>
+            <%= render ::ArticleItem::Component.new(
+              current_user: current_user,
+              article: article,
+              is_read: is_read,
+              is_new: is_new,
+              read_at: read_at,
+              in_read_next: in_read_next) %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="flex flex-col items-center justify-center py-12">
+          <div class="w-12 h-12 mb-4 rounded-full bg-base-200 dark:bg-base-300 flex items-center justify-center">
+            <%= icon_tag "file", class: "w-5 h-5 text-base-content/40" %>
+          </div>
+          <p class="text-sm text-base-content/50"><%= @filter == "all" ? "No articles yet" : "No #{@filter} articles" %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</main>

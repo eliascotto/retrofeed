@@ -1,0 +1,196 @@
+<%# Playground - Test website archive detection and article extraction %>
+<div class="min-h-screen bg-base-200 p-4 sm:p-8">
+  <div class="max-w-4xl mx-auto">
+    <%# Header %>
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold mb-2">Website Playground</h1>
+      <p class="text-base-content/70">
+        Test archive detection, article extraction, and pagination for any website URL.
+      </p>
+    </div>
+
+    <%# URL Input Form %>
+    <div class="card bg-base-100 shadow-sm mb-6">
+      <div class="card-body">
+        <h2 class="card-title text-lg mb-4">Test Archive</h2>
+
+        <%= form_with url: playground_path, method: :post, local: true, data: { turbo: false }, class: "space-y-4" do |f| %>
+          <%# URL Input %>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Website URL</span>
+            </label>
+            <input
+              type="url"
+              name="url"
+              placeholder="https://example.com/blog"
+              class="input input-bordered w-full"
+              required
+              autofocus
+              value="<%= params[:url].presence || params[:website].presence || '' %>">
+            <% if @error %>
+              <label class="label">
+                <span class="label-text-alt text-error"><%= @error %></span>
+              </label>
+            <% end %>
+          </div>
+
+          <%# Options %>
+          <div class="flex flex-wrap gap-4 items-end" data-controller="playground-form">
+            <%# Pagination Testing %>
+            <div class="form-control" id="pagination-options">
+              <label class="label cursor-pointer gap-2">
+                <input
+                  type="checkbox"
+                  name="test_pagination"
+                  value="1"
+                  class="checkbox checkbox-sm"
+                  id="paginationCheckbox"
+                  data-playground-form-target="paginationCheckbox"
+                  data-action="change->playground-form#togglePagination"
+                  <%= params[:test_pagination] == "1" ? "checked" : "" %>
+                  <%= params[:use_infinite_scroll] == "1" ? "disabled" : "" %>
+                >
+                <span class="label-text">Test pagination</span>
+              </label>
+            </div>
+
+            <%# Max Pages %>
+            <div class="form-control" id="max-pages-option">
+              <label class="label">
+                <span class="label-text">Max pages</span>
+              </label>
+              <input
+                type="number"
+                name="max_pages"
+                id="maxPagesInput"
+                data-playground-form-target="maxPagesInput"
+                value="<%= params[:max_pages].presence || 3 %>"
+                min="1"
+                max="50"
+                class="input input-bordered input-sm w-24"
+                <%= params[:use_infinite_scroll] == "1" ? "disabled" : "" %>
+              >
+            </div>
+
+            <div class="divider divider-horizontal mx-2"></div>
+
+            <%# Infinite Scroll Option %>
+            <div class="form-control">
+              <label class="label cursor-pointer gap-2">
+                <input
+                  type="checkbox"
+                  name="use_infinite_scroll"
+                  value="1"
+                  class="checkbox checkbox-sm"
+                  id="infiniteScrollCheckbox"
+                  data-playground-form-target="infiniteScrollCheckbox"
+                  data-action="change->playground-form#toggleInfiniteScroll"
+                  <%= params[:use_infinite_scroll] == "1" ? "checked" : "" %>
+                >
+                <span class="label-text">Use infinite scroll</span>
+              </label>
+            </div>
+
+            <%# Max Scrolls %>
+            <div class="form-control" id="max-scrolls-option">
+              <label class="label">
+                <span class="label-text">Max scrolls</span>
+              </label>
+              <input
+                type="number"
+                name="max_scrolls"
+                id="maxScrollsInput"
+                data-playground-form-target="maxScrollsInput"
+                value="<%= params[:max_scrolls].presence || 5 %>"
+                min="1"
+                max="20"
+                class="input input-bordered input-sm w-24"
+                <%= params[:use_infinite_scroll] != "1" ? "disabled" : "" %>
+              >
+            </div>
+
+            <div class="divider divider-horizontal mx-2"></div>
+
+            <%# Debug Extraction %>
+            <div class="form-control">
+              <label class="label cursor-pointer gap-2">
+                <input
+                  type="checkbox"
+                  name="debug"
+                  value="1"
+                  class="checkbox checkbox-sm"
+                  <%= params[:debug] == "1" ? "checked" : "" %>
+                >
+                <span class="label-text">Debug extraction</span>
+              </label>
+            </div>
+
+            <div class="divider divider-horizontal mx-2"></div>
+
+            <%# Skip Fixture Saving %>
+            <div class="form-control">
+              <label class="label cursor-pointer gap-2">
+                <input
+                  type="checkbox"
+                  name="skip_fixture"
+                  value="1"
+                  class="checkbox checkbox-sm"
+                  <%= params[:skip_fixture] == "1" ? "checked" : "" %>
+                >
+                <span class="label-text">Skip fixture saving</span>
+              </label>
+            </div>
+          </div>
+
+          <%# Submit Button %>
+          <div class="card-actions justify-end pt-2">
+            <button type="submit" class="btn btn-primary">
+              Analyze Website
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Single page parsing test %>
+    <div class="card bg-base-100 shadow-sm mb-6">
+      <div class="card-body">
+        <h2 class="card-title text-lg">Article Test</h2>
+        <p class="text-base-content/70 text-sm">
+          Test parsing a single page from a website URL.
+        </p>
+        <%= form_with url: process_article_playground_path, method: :post, data: { turbo: false }, class: "space-y-4" do |form| %>
+          <div>
+            <%= form.label :website, "Website URL", class: "label" %>
+            <%= form.url_field :website, value: @website, placeholder: "https://example.com/article-title", class: "input input-bordered w-full", required: true %>
+          </div>
+          <div class="card-actions justify-end pt-2">
+            <button type="submit" class="btn btn-primary">
+              Test Article
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Stats Card %>
+    <% if @stats && @stats[:fixtures] > 0 %>
+      <div class="card bg-base-100 shadow-sm">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="card-title text-lg">Cached Fixtures</h2>
+              <p class="text-base-content/70 text-sm">
+                <%= @stats[:fixtures] %> pages from <%= @stats[:domains] %> domains (<%= @stats[:total_size_human] %>)
+              </p>
+            </div>
+            <a href="<%= playground_fixtures_path %>" class="btn btn-ghost btn-sm">
+              Manage Fixtures
+            </a>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

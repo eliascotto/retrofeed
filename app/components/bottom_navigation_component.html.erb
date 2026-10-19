@@ -1,0 +1,36 @@
+<%# Bottom Navigation - visible only on mobile %>
+<nav class="sm:hidden fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-200 z-40">
+  <div class="flex items-center justify-around px-2 py-1 safe-area-pb">
+    <%# Home %>
+    <% home_active = active?(helpers.root_path) %>
+    <%= link_to helpers.root_path, class: nav_icon_classes(active: home_active) do %>
+      <%= helpers.icon_tag "home", class: "w-6 h-6" %>
+    <% end %>
+
+    <%# Search %>
+    <% search_active = active?(helpers.search_path) %>
+    <%= link_to helpers.search_path, class: nav_icon_classes(active: search_active) do %>
+      <%= helpers.icon_tag "search", class: "w-6 h-6" %>
+    <% end %>
+
+    <%# Websites %>
+    <% sites_active = active?(helpers.sites_path) %>
+    <%= link_to helpers.sites_path, class: nav_icon_classes(active: sites_active) do %>
+      <%= helpers.icon_tag "globe", class: "w-6 h-6" %>
+    <% end %>
+
+    <%# Notifications - link to lists for now %>
+    <% lists_active = active?(helpers.lists_path) %>
+    <%= link_to helpers.lists_path, class: nav_icon_classes(active: lists_active) do %>
+      <%= helpers.icon_tag "list", class: "w-6 h-6" %>
+    <% end %>
+
+    <%# Profile/User %>
+    <% settings_active = active?(helpers.settings_path) %>
+    <%= link_to helpers.settings_path, class: nav_icon_classes(active: settings_active) do %>
+      <div class="w-6 h-6 rounded-full bg-primary/60 flex items-center justify-center">
+        <span class="text-[10px] font-medium text-base-content"><%= current_user.handle&.[](0)&.upcase || "?" %></span>
+      </div>
+    <% end %>
+  </div>
+</nav>

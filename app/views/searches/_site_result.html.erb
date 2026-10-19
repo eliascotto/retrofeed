@@ -1,0 +1,31 @@
+<%
+  site = local_assigns[:site]
+  query = local_assigns[:query]
+%>
+
+<%= link_to site_path(site), class: "block px-3 py-3 rounded-lg border border-base-200 hover:border-primary hover:bg-base-200/50 transition-colors group" do %>
+  <div class="flex items-start gap-3">
+    <!-- Type Badge -->
+    <div class="shrink-0">
+      <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-secondary/10 text-secondary">
+        Site
+      </span>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2 mb-1">
+        <% if site.favicon.attached? %>
+          <%= image_tag url_for(site.favicon), alt: "", class: "w-4 h-4 object-contain shrink-0" %>
+        <% end %>
+        <h3 class="text-sm font-medium text-base-content group-hover:text-primary">
+          <%= highlight_search(site.name.presence || site.domain, query) %>
+        </h3>
+      </div>
+
+      <p class="text-xs text-base-content/60 mt-1">
+        <%= highlight_search(site.domain, query) %>
+      </p>
+    </div>
+  </div>
+<% end %>

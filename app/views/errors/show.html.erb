@@ -1,0 +1,33 @@
+<!-- Main content -->
+<main class="flex-1 flex flex-col min-w-0 h-full">
+    <!-- Header -->
+    <%= render PageHeaderComponent.new(
+        back_path: @back_path,
+        title: "Error",
+        size: :small
+    ) %>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto">
+      <div class="max-w-2xl mx-auto px-4 py-12">
+        <div class="flex flex-col items-center justify-center text-center">
+          <!-- Error Icon -->
+          <div class="w-16 h-16 mb-6 rounded-full bg-error/10 dark:bg-error/20 flex items-center justify-center">
+            <%= icon_tag "triangle-alert", class: "w-8 h-8 text-error" %>
+          </div>
+
+          <!-- Error Message -->
+          <h2 class="text-xl font-semibold mb-3">Oops!</h2>
+          <p class="text-base text-base-content/70 mb-6 max-w-md">
+            <%= @error_message %>
+          </p>
+
+          <!-- Back Button -->
+          <a href="<%= @back_path %>" class="btn btn-primary">
+            <%= icon_tag "arrow-left" %>
+            Go back
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>

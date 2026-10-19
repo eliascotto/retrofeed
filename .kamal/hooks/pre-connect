@@ -1,0 +1,236 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Sync .env to .kamal/secrets
+#
+# This script syncs environment variables from .env.production (or .env)
+# to .kamal/secrets. It's called by bin/deploy before invoking Kamal,
+# ensuring secrets are available when Kamal starts.
+#
+# Note: Kamal reads secrets at startup before hooks run, so this script
+# must be called externally via bin/deploy, not as a Kamal hook alone.
+# It's placed in .kamal/hooks/ as pre-connect so Kamal also runs it during
+# the deploy flow for redundancy.
+#
+# Usage:
+#   1. Keep all your secrets in .env.production (or .env as fallback)
+#   2. Use bin/deploy instead of bin/kamal for deployments
+#   3. This script extracts all variables and writes them to .kamal/secrets
+#
+# To add new secrets:
+#   1. Add the variable to your .env file
+#   2. If it's required for deployment, add it to REQUIRED_SECRETS below
+#   3. Add the variable to config/deploy.yml under env.secret (if needed by the app)
+#
+# All variables not in REQUIRED_SECRETS are treated as optional and will be
+# included in .kamal/secrets if present in the .env file.
+
+require "pathname"
+
+# ==============================================================================
+# Configuration
+# ==============================================================================
+
+# Primary env file to use (relative to project root)
+# Falls back to FALLBACK_ENV_FILE if not found
+PRIMARY_ENV_FILE = ".env.production"
+FALLBACK_ENV_FILE = ".env"
+
+# Secrets that MUST be present (deployment will fail if missing)
+# All other variables found in the .env file are treated as optional
+# and will be automatically included in .kamal/secrets
+REQUIRED_SECRETS = %w[
+  KAMAL_IMAGE
+  KAMAL_REGISTRY_USERNAME
+  KAMAL_REGISTRY_PASSWORD
+  DEPLOY_SERVER
+  DEPLOY_SSH_KEY
+  APP_HOST
+  RAILS_MASTER_KEY
+  DATABASE_URL
+  POSTGRES_USER
+  POSTGRES_PASSWORD
+  POSTGRES_DB
+].freeze
+
+# ==============================================================================
+# Helper Methods
+# ==============================================================================
+
+# Find the env file to use, preferring primary over fallback
+#
+# @param project_root [Pathname] Project root directory
+# @return [Hash] { path: Pathname, name: String, fallback_checked: Boolean }
+def find_env_file(project_root)
+  primary = project_root.join(PRIMARY_ENV_FILE)
+  fallback = project_root.join(FALLBACK_ENV_FILE)
+
+  if primary.exist?
+    { path: primary, name: PRIMARY_ENV_FILE, fallback_checked: false }
+  elsif fallback.exist?
+    { path: fallback, name: FALLBACK_ENV_FILE, fallback_checked: true }
+  else
+    { path: nil, name: nil, fallback_checked: true }
+  end
+end
+
+# Parse a .env file and return a hash of key-value pairs
+#
+# Handles:
+#   - Comments (lines starting with #)
+#   - Empty lines
+#   - Quoted values (single and double quotes)
+#   - Values with special characters
+#
+# @param path [Pathname] Path to the .env file
+# @return [Hash] Environment variables as key-value pairs
+def parse_env_file(path)
+  return {} unless path.exist?
+
+  env_vars = {}
+
+  path.each_line do |line|
+    line = line.strip
+
+    # Skip empty lines and comments
+    next if line.empty? || line.start_with?("#")
+
+    # Match KEY=VALUE pattern (value can be quoted or unquoted)
+    if line =~ /\A([A-Za-z_][A-Za-z0-9_]*)=(.*)\z/
+      key = Regexp.last_match(1)
+      value = Regexp.last_match(2)
+
+      # Remove surrounding quotes if present
+      value = value[1..-2] if value.start_with?('"') && value.end_with?('"')
+      value = value[1..-2] if value.start_with?("'") && value.end_with?("'")
+
+      env_vars[key] = value
+    end
+  end
+
+  env_vars
+end
+
+# Write secrets to the .kamal/secrets file
+#
+# @param secrets [Hash] Key-value pairs to write
+# @param path [Pathname] Path to the secrets file
+def write_secrets_file(secrets, path)
+  # Ensure directory exists
+  path.dirname.mkpath
+
+  content = secrets.map { |key, value| "#{key}=#{value}" }.join("\n")
+  content += "\n" unless content.empty?
+
+  # Deployment credentials must remain readable only by the local account.
+  File.open(path, File::WRONLY | File::CREAT | File::TRUNC, 0o600) do |file|
+    file.chmod(0o600)
+    file.write(content)
+  end
+end
+
+# Print a colored message to stdout
+#
+# @param message [String] Message to print
+# @param color [Symbol] Color (:green, :yellow, :red)
+def log(message, color = nil)
+  colors = {
+    green: "\e[32m",
+    yellow: "\e[33m",
+    red: "\e[31m",
+    reset: "\e[0m"
+  }
+
+  if color && colors[color]
+    puts "#{colors[color]}#{message}#{colors[:reset]}"
+  else
+    puts message
+  end
+end
+
+# ==============================================================================
+# Main Script
+# ==============================================================================
+
+# Determine paths relative to the project root
+project_root = Pathname.new(__dir__).parent.parent
+secrets_file = project_root.join(".kamal", "secrets")
+
+log "=" * 60
+log "Kamal Pre-Deploy: Syncing .env to .kamal/secrets"
+log "Project root: #{project_root}"
+log "Secrets file: #{secrets_file}"
+log "=" * 60
+
+# Find the env file to use
+env_result = find_env_file(project_root)
+
+if env_result[:path].nil?
+  log "ERROR: No env file found.", :red
+  log "  Checked: #{PRIMARY_ENV_FILE} (not found)", :red
+  log "  Checked: #{FALLBACK_ENV_FILE} (not found)", :red
+  log ""
+  log "Please create #{PRIMARY_ENV_FILE} or #{FALLBACK_ENV_FILE} with the required secrets.", :red
+  exit 1
+end
+
+# Log which file is being used
+if env_result[:fallback_checked]
+  log "Using: #{env_result[:name]}", :yellow
+  log "  (#{PRIMARY_ENV_FILE} not found, using fallback)", :yellow
+else
+  log "Using: #{env_result[:name]}", :green
+end
+log ""
+
+# Parse the env file
+env_vars = parse_env_file(env_result[:path])
+log "Parsed #{env_vars.size} variables from #{env_result[:name]}"
+log ""
+
+# Collect secrets to write
+secrets = {}
+missing_required = []
+
+# Process required secrets first
+log "Required secrets:"
+REQUIRED_SECRETS.each do |key|
+  if env_vars.key?(key) && !env_vars[key].empty?
+    secrets[key] = env_vars[key]
+    log "  [OK] #{key}", :green
+  else
+    missing_required << key
+    log "  [MISSING] #{key}", :red
+  end
+end
+
+# Process all other variables as optional
+optional_vars = env_vars.keys - REQUIRED_SECRETS
+if optional_vars.any?
+  log ""
+  log "Optional secrets (auto-detected):"
+  optional_vars.sort.each do |key|
+    if !env_vars[key].empty?
+      secrets[key] = env_vars[key]
+      log "  [OK] #{key}", :green
+    else
+      log "  [SKIP] #{key} (empty value)", :yellow
+    end
+  end
+end
+
+# Fail if required secrets are missing
+if missing_required.any?
+  log ""
+  log "ERROR: Missing required secrets in #{env_result[:name]}:", :red
+  missing_required.each { |key| log "  - #{key}", :red }
+  log ""
+  log "Please add these variables to your env file before deploying.", :red
+  exit 1
+end
+
+# Write the secrets file
+write_secrets_file(secrets, secrets_file)
+log ""
+log "Successfully wrote #{secrets.size} secrets to .kamal/secrets", :green
+log "=" * 60

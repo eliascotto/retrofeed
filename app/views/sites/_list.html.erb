@@ -1,0 +1,26 @@
+<!-- Site List -->
+<div id="site-list-container" class="py-4 px-3">
+  <!-- Site Counter header -->
+  <%= render "sites/counter", user: current_user %>
+
+  <!-- Site List -->
+  <div id="sites-list" class="space-y-1">
+    <% if current_user.websites.any? %>
+      <% current_user.websites.includes(:articles).order(created_at: :desc).each do |website| %>
+        <%= render "sites/site_list_item",
+          website:,
+          user: current_user,
+          progress: progress_by_website[website.id] || {
+            processed: 0,
+            total: 0,
+            percentage: 0,
+            is_processing: false
+          },
+          new_count: new_counts_by_website[website.id] || 0,
+          total_count: total_counts_by_website[website.id] || 0 %>
+      <% end %>
+    <% else %>
+      <%= render "sites/empty_state" %>
+    <% end %>
+  </div>
+</div>

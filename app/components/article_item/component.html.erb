@@ -1,0 +1,110 @@
+<div id="<%= dom_id(article) %>" class="flex flex-row items-center gap-2 px-2 py-2 -mx-2 rounded hover:bg-base-200 dark:hover:bg-base-200 transition-colors group <%= "opacity-60" if is_read %>">
+  <%= article_item_container do %>
+
+    <!-- Favicon or Initials -->
+    <% if show_favicon %>
+      <div class="shrink-0 w-4.5 h-4.5 flex items-center justify-center self-start mt-1">
+        <% if article.website.favicon.attached? %>
+          <%= image_tag url_for(article.website.favicon), alt: "", class: "w-4.5 h-4.5 object-contain rounded-xs" %>
+        <% else %>
+          <div class="w-4 h-4 rounded bg-base-300 flex items-center justify-center">
+            <span class="text-[8px] font-medium text-base-content/50"><%= (article.website.name.presence || article.website.domain)[0].upcase %></span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="flex-1 flex-col min-w-0">
+
+      <!-- Title and website name -->
+      <div class="flex items-center gap-1.5">
+        <!-- Title -->
+        <span class="text-sm font-medium truncate block
+          <%= user_has_article? && article.has_content? ? 'text-base-content' : 'text-base-content/50' %>
+          group-hover:text-primary">
+          <%= title %>
+        </span>
+
+        <!-- Read icon -->
+        <% if is_read %>
+          <%= helpers.icon_tag "check", class: "w-3 h-3 text-base-content/60 shrink-0" %>
+        <% end %>
+
+        <!-- New article icon -->
+        <% if is_new && !is_read %>
+          <%= helpers.icon_tag "dot", class: "text-2xl h-3 text-primary shrink-0" %>
+        <% end %>
+      </div>
+
+      <!-- Publication date and word count -->
+      <div class="flex items-center gap-2 mt-0.5">
+        <!-- Website name -->
+        <% if show_website && article.website %>
+          <span class="text-sm text-base-content/40"><%= website_name %></span>
+          <% if show_date_separator? %>
+            <span class="text-xs text-base-content/40">·</span>
+          <% end %>
+        <% end %>
+        <!-- Publication date -->
+        <% if article.publication_date %>
+          <span class="text-xs text-base-content/40"><%= formatted_date %></span>
+        <% end %>
+        <!-- Word count -->
+        <% if show_word_count %>
+          <% if show_word_count_separator %>
+            <span class="text-xs text-base-content/40">·</span>
+          <% end %>
+          <span class="text-xs text-base-content/40"><%= formatted_word_count %>w</span>
+        <% end %>
+        <!-- Read at -->
+        <% if is_read && read_at %>
+          <% if true %>
+            <span class="text-xs text-base-content/40">·</span>
+          <% end %>
+          <span class="text-xs text-base-content/40"><%= read_at_text %></span>
+        <% end %>
+        <!-- No information shown, show estimated reading time -->
+        <% no_info = !article.publication_date && !show_word_count && !is_read && !read_at %>
+        <% if no_info && article.word_count.present? %>
+          <div
+            class="text-base-content/40 flex flex-row items-center gap-1"
+            data-controller="tooltip"
+            data-tooltip-placement-value="bottom"
+            data-tooltip-delay-value="800"
+          >
+            <% reading_time_estimation_minutes = (article.word_count / 200.0).ceil %>
+            <span class="text-xs"><%= reading_time_estimation_minutes %> min</span>
+            <div data-tooltip-target="tooltip" style="display:none" class="tooltip tooltip--sm">
+                Reading time estimated to <%= reading_time_estimation_minutes %> minutes
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+    </div>
+  <% end %>
+
+  <%# Show downloading message when article doesn't have content yet %>
+  <% if status_icon %>
+    <div class="text-base-content/30 italic capitalize flex items-center gap-1" title="<%= article.status %>">
+      <%= helpers.icon_tag status_icon, class: "w-4 h-4",
+        data: ({ tooltip_target: "anchor" } if status_tooltip) %>
+    </div>
+    <% if status_tooltip %>
+      <div data-tooltip-target="tooltip" style="display:none" class="tooltip-box">
+        <%= status_tooltip %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- Context menu -->
+  <%= render DropdownComponent.new(
+      position: "bottom-left",
+      trigger_class: "sm:opacity-0 group-hover:opacity-100 shadown-none transition-opacity text-base"
+      ) do |dropdown| %>
+    <% dropdown_items.each do |item| %>
+      <% dropdown.with_item(**item) %>
+    <% end %>
+  <% end %>
+
+</div>

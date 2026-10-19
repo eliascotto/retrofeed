@@ -1,0 +1,51 @@
+<%# Confirmation modal for deleting a reading list %>
+
+<dialog
+  id="delete-list-modal"
+  class="modal"
+  data-controller="delete-list-modal"
+  data-action="modal:openDeleteList@window->delete-list-modal#openFromEvent"
+  data-delete-list-modal-csrf-token-value="<%= form_authenticity_token %>"
+>
+  <div class="modal-box">
+    <!-- Header with close button -->
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-lg">Delete Reading List</h3>
+      <form method="dialog">
+        <button
+          class="btn btn-sm btn-circle btn-ghost shadow-none text-base text-base-content/50 hover:text-white"
+          data-action="click->delete-list-modal#close">
+          <%= icon_tag "x", class: "w-5 h-5" %>
+        </button>
+      </form>
+    </div>
+
+    <!-- Message -->
+    <p class="text-base-content/70 mb-6">
+      Are you sure you want to delete <span class="font-semibold text-base-content" data-delete-list-modal-target="listTitle"></span>? This action cannot be undone.
+    </p>
+
+    <!-- Actions -->
+    <div class="modal-action mt-0">
+      <button
+        type="button"
+        class="btn btn-ghost"
+        data-action="click->delete-list-modal#close"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-error"
+        data-action="click->delete-list-modal#confirm"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <!-- Backdrop click to close -->
+  <form method="dialog" class="modal-backdrop">
+    <button data-action="click->delete-list-modal#close">close</button>
+  </form>
+</dialog>

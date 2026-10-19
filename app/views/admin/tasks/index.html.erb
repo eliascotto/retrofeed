@@ -1,0 +1,48 @@
+<% content_for :title, "Admin / Tasks" %>
+
+<div class="min-h-screen flex flex-col">
+  <header class="border-b border-gray-200 dark:border-gray-800 px-6 py-3 flex items-center justify-between">
+    <%= link_to root_path, class: "flex flex-row items-center text-sm gap-2 text-gray-400" do %>
+        <%= icon_tag "arrow-left", class: "flash__icon" %>
+        Back
+    <% end %>
+    <h1 class="text-lg font-semibold">Admin / Tasks</h1>
+    <span class="text-xs text-gray-500"><%= Rails.env %></span>
+  </header>
+
+  <div data-controller="admin-tasks"
+       class="flex-1 grid grid-cols-1 md:grid-cols-[18rem_minmax(0,1fr)]">
+
+    <aside class="border-r border-gray-200 dark:border-gray-800 p-4 md:h-[calc(100vh-3.25rem)] overflow-y-auto">
+      <% @tasks_by_group.each do |group, tasks| %>
+        <section class="mb-5">
+          <h2 class="text-xs uppercase tracking-wide text-gray-500 mb-2"><%= group %></h2>
+          <ul class="space-y-1">
+            <% tasks.each do |task| %>
+              <li>
+                <%= link_to task.title,
+                      admin_task_path(task.id),
+                      data: {
+                        turbo_frame: "task-details",
+                        action: "admin-tasks#select",
+                        admin_tasks_target: "link"
+                      },
+                      class: "block px-2 py-1 rounded text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800" %>
+              </li>
+            <% end %>
+          </ul>
+        </section>
+      <% end %>
+    </aside>
+
+    <main class="p-6 md:h-[calc(100vh-3.25rem)] overflow-y-auto">
+      <%= turbo_frame_tag "task-details" do %>
+        <p class="text-gray-500 text-sm">Select a task on the left.</p>
+      <% end %>
+
+      <div class="mt-6">
+        <%= turbo_frame_tag "task-output" %>
+      </div>
+    </main>
+  </div>
+</div>

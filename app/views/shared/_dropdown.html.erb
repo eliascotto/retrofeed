@@ -1,0 +1,91 @@
+<%# Reusable dropdown component with click-outside close functionality %>
+<%# 
+  Uses a hybrid approach: details/summary for desktop, Popover API for mobile.
+  This prevents off-screen positioning issues on small screens.
+  
+  Usage:
+    <%= render "shared/dropdown", 
+        summary: "Button text or HTML",
+        dropdown_classes: "dropdown-end" (optional),
+        summary_classes: "btn btn-ghost" (optional) do 
+      content
+    <% end 
+%>
+<%
+  summary = local_assigns[:summary] || "Menu"
+  dropdown_classes = local_assigns[:dropdown_classes] || "dropdown-end"
+  summary_classes = local_assigns[:summary_classes] || "btn btn-ghost"
+  
+  # Generate unique IDs for popover
+  unique_id = SecureRandom.hex(4)
+  popover_id = "shared-dropdown-popover-#{unique_id}"
+  anchor_name = "--shared-dropdown-anchor-#{unique_id}"
+  
+  # Capture yielded content so we can use it in both versions
+  dropdown_content = capture { yield }
+%>
+
+<%# Desktop version: details/summary (hidden on mobile) %>
+<div class="hidden sm:block" data-controller="dropdown">
+  <details class="dropdown <%= dropdown_classes %>" data-dropdown-target="details">
+    <summary class="<%= summary_classes %>">
+      <%= summary.html_safe %>
+    </summary>
+    <%= dropdown_content %>
+  </details>
+</div>
+
+<%# Mobile version: Popover API (visible on mobile only) %>
+<div class="block sm:hidden">
+  <button type="button"
+          popovertarget="<%= popover_id %>"
+          class="<%= summary_classes %>">
+    <%= summary.html_safe %>
+  </button>
+  <%# 
+    The popover content may contain elements with dropdown-content class which DaisyUI 
+    hides by default. We use a CSS block to override this within the popover scope.
+    The popover is centered on screen for reliable mobile positioning.
+  %>
+  <style>
+    #<%= popover_id %>:popover-open {
+      position: fixed !important;
+      inset: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+    }
+    #<%= popover_id %>::backdrop {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    #<%= popover_id %>:popover-open .dropdown-content {
+      visibility: visible !important;
+      opacity: 1 !important;
+      display: block !important;
+      position: static !important;
+      transform: none !important;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+    }
+  </style>
+  <div popover="auto" id="<%= popover_id %>">
+    <%# Clickable backdrop to close popover when tapping outside content %>
+    <button type="button"
+            popovertarget="<%= popover_id %>"
+            popovertargetaction="hide"
+            class="absolute inset-0 w-full h-full cursor-default"
+            aria-label="Close menu">
+    </button>
+    <%# Menu content positioned above the backdrop %>
+    <div class="relative z-10">
+      <%= dropdown_content %>
+    </div>
+  </div>
+</div>

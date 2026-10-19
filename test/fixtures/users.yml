@@ -1,0 +1,47 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+admin:
+  email: admin@retrofeed.com
+  handle: admin
+  password_digest: <%= BCrypt::Password.create('password123') %>
+  admin: true
+  email_confirmed_at: <%= 1.day.ago %>
+
+test_user:
+  email: test@example.com
+  handle: testuser
+  password_digest: <%= BCrypt::Password.create('password123') %>
+  admin: false
+  email_confirmed_at: <%= 1.day.ago %>
+
+other_user:
+  email: other@example.com
+  handle: otheruser
+  password_digest: <%= BCrypt::Password.create('password123') %>
+  admin: false
+  email_confirmed_at: <%= 1.day.ago %>
+
+unconfirmed_user:
+  email: unconfirmed@example.com
+  handle: unconfirmed
+  password_digest: <%= BCrypt::Password.create('password123') %>
+  admin: false
+  email_confirmed_at: null
+  email_confirmation_sent_at: <%= 1.hour.ago %>
+
+# User without handle - represents a user who confirmed email but hasn't set handle yet
+user_without_handle:
+  email: nohandle@example.com
+  handle: null
+  password_digest: <%= BCrypt::Password.create('password123') %>
+  admin: false
+  email_confirmed_at: <%= 1.day.ago %>
+
+# Unconfirmed user without handle - represents newly registered user
+unconfirmed_no_handle:
+  email: unconfirmed_nohandle@example.com
+  handle: null
+  password_digest: <%= BCrypt::Password.create('password123') %>
+  admin: false
+  email_confirmed_at: null
+  email_confirmation_sent_at: <%= 1.hour.ago %>

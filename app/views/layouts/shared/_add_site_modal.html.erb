@@ -1,0 +1,46 @@
+<dialog
+  id="add-site-modal"
+  class="modal"
+  data-controller="add-site-modal"
+  data-action="modal:openAddWebsite@window->add-site-modal#open
+               turbo:submit-end->add-site-modal#onSubmitEnd">
+  <div class="modal-box">
+
+    <!-- Header with close button -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex flex-row items-center gap-2">
+        <h3 class="font-bold text-lg">Add Website</h3>
+
+        <!-- Tip Tooltip -->
+        <div class="flex justify-end">
+          <div data-controller="tooltip" data-tooltip-placement-value="bottom">
+            <%= icon_tag "info", class: "w-4 h-4 text-gray-500 hover:text-gray-200",
+              data: { tooltip_target: "anchor" } %>
+            <div data-tooltip-target="tooltip" style="display:none" class="tooltip">
+              Paste the archive page directly for the best results. Otherwise, we'll try to find it automatically, but keep in mind it's not accurate yet.
+            </div>
+          </div>
+        </div>
+      </div>
+      <%# Close button %>
+      <form method="dialog">
+        <button
+          class="btn btn-sm btn-circle btn-ghost shadow-none text-base text-base-content/50 hover:text-white"
+          data-action="click->add-site-modal#close">
+          <%= icon_tag "x", class: "w-5 h-5" %>
+        </button>
+      </form>
+    </div>
+
+    <%= form_with url: sites_path, scope: :site, data: { turbo_frame: "_top" } do |f| %>
+      <div id="add-site-modal-form-body">
+        <%= render "layouts/shared/add_site_modal_form", error: nil %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Backdrop click to close -->
+  <form method="dialog" class="modal-backdrop">
+    <button data-action="click->add-site-modal#close">close</button>
+  </form>
+</dialog>

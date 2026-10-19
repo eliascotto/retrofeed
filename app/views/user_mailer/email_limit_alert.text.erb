@@ -1,0 +1,18 @@
+Hi <%= @admin.handle %>,
+
+<% if @status == "over" %>
+ALERT: The daily email limit has been exceeded.
+
+Today's email count: <%= @count %> / <%= @limit %>
+
+No more emails can be sent until tomorrow. New user registrations and email confirmations will be delayed.
+<% else %>
+WARNING: The daily email limit is being approached.
+
+Today's email count: <%= @count %> / <%= @limit %>
+
+Consider upgrading your Resend plan if email volume continues to grow.
+<% end %>
+
+---
+This is an automated alert from Retrofeed.

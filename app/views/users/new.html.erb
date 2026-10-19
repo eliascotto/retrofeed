@@ -1,0 +1,16 @@
+<!-- Signup page -->
+<% footer = capture do %>
+  <div class="mt-5 text-center text-sm">
+    Already have an account? <%= link_to "Log in", new_session_path, class: "link link-hover underline text-base-content" %>
+  </div>
+<% end %>
+
+<%= render "shared/auth_card", title: "Create a new RetroFeed account", footer: footer do %>
+  <%= form_with url: users_path, method: :post, local: true, data: { turbo: false } do |f| %>
+    <%= render partial: "shared/auth_field", locals: { form: f, field: :email, label: "Email", type: :email, required: true, autofocus: true } %>
+
+    <%= render partial: "shared/auth_field", locals: { form: f, field: :password, label: "Password", type: :password, required: true, margin_bottom: 30 } %>
+
+    <%= render partial: "shared/auth_submit_button", locals: { text: "Create account" } %>
+  <% end %>
+<% end %>

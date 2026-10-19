@@ -1,0 +1,130 @@
+<%# All reading lists %>
+<main class="flex-1 flex flex-col min-w-0 h-full">
+  <!-- Header -->
+  <%= render PageHeaderComponent.new(
+      back_path: root_path,
+      title: "Reading Lists",
+      size: :small
+  ) %>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto">
+    <div class="mx-auto px-3 py-4">
+      <% if @lists.any? %>
+        <div class="flex flex-row items-center justify-between mb-4">
+          <!-- Reading Lists count -->
+          <div class="text-sm text-base-content/50">
+            <%= pluralize(@lists.unscope(:group).count, "reading list") %>
+          </div>
+
+          <!-- Sort Controls -->
+          <div class="flex items-center gap-1">
+            <% sort_options = [
+              { key: "date", label: "Date" },
+              { key: "title", label: "Title" },
+              { key: "count", label: "Count" }
+            ] %>
+            <% sort_options.each do |opt| %>
+              <% is_active = @sort == opt[:key] %>
+              <% next_order = (is_active && @order == "desc") ? "asc" : "desc" %>
+              <%= link_to lists_path(sort: opt[:key], order: is_active ? next_order : "desc"),
+                  class: "btn btn-xs #{is_active ? 'btn-soft btn-primary' : 'btn-ghost'}" do %>
+                <%= opt[:label] %>
+                <% if is_active %>
+                  <%= icon_tag "arrow-#{@order == 'asc' ? 'up' : 'down'}-wide-narrow", class: "w-3 h-3" %>
+                <% end %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @lists.any? %>
+        <div class="grid gap-2">
+          <% @lists.each do |list| %>
+            <div class="flex items-center rounded gap-4 py-2 px-3 hover:border-primary/50 hover:bg-base-200 dark:hover:bg-base-200 transition-all group">
+              <%= link_to list_path(list), class: "flex-1 flex items-center gap-4 min-w-0" do %>
+
+                <!-- Cover Image -->
+                <% if list.cover_image.attached? %>
+                  <%= image_tag list.cover_image,
+                    alt: "List #{list.title}",
+                    class: "w-10 h-10 rounded object-cover flex-shrink-0 ring-1 ring-base-200" %>
+                <% else %>
+                  <div class="w-10 h-10 rounded flex items-center justify-center shrink-0 text-primary-content ring-1 ring-base-200">
+                    <%= icon_tag "bookmark", class: "w-6 h-6 text-xl dark:text-gray-400" %>
+                  </div>
+                <% end %>
+
+                <!-- List title + info -->
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-sm font-semibold text-base-content truncate group-hover:text-primary"><%= list.title %></h3>
+                  <p class="text-xs text-base-content/50 mt-1">
+                    <%= pluralize(list.articles.count, "article") %>
+                  </p>
+                </div>
+              <% end %>
+
+              <!-- Context menu -->
+              <%= render DropdownComponent.new(
+                  position: "bottom-left",
+                  size: "sm",
+                  trigger_class: "opacity-0 group-hover:opacity-100 transition-opacity text-base"
+                  ) do |dropdown| %>
+                <% dropdown.with_item(
+                    label: "Edit",
+                    icon: "square-pen",
+                    href: "#",
+                    data: {
+                      controller: "modal-trigger",
+                      action: "click->modal-trigger#open",
+                      modal_trigger_event_value: "openEditList",
+                      modal_trigger_url_param: list_path(list),
+                      modal_trigger_title_param: list.title,
+                      modal_trigger_description_param: list.description,
+                      modal_trigger_cover_param: (url_for(list.cover_image) if list.cover_image.attached?)
+                    }
+                ) %>
+                <% dropdown.with_item(
+                    label: "Delete",
+                    icon: "trash",
+                    href: "#",
+                    data: {
+                      controller: "modal-trigger",
+                      action: "click->modal-trigger#open",
+                      modal_trigger_event_value: "openDeleteList",
+                      modal_trigger_id_param: list.id,
+                      modal_trigger_name_param: j(list.title),
+                      modal_trigger_path_param: list_path(list)
+                    }
+                ) %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+      <%# Empty %>
+      <% else %>
+        <div class="flex flex-col items-center justify-center py-12">
+          <div class="w-12 h-12 mb-4 rounded-full bg-base-200 dark:bg-base-200 flex items-center justify-center">
+            <%= icon_tag "bookmark", class: "w-5 h-5 text-base-content/40" %>
+          </div>
+          <div class="gap-2 flex flex-col items-center mb-4">
+            <p class="text-base text-base-content/50">No reading lists yet</p>
+            <p class="text-sm text-base-content/40 mt-1">Use lists to organize your articles, like a playlist but for reading.</p>
+          </div>
+          <button
+            type="button"
+            data-controller="modal-trigger"
+            data-action="click->modal-trigger#open"
+            data-modal-trigger-event-value="openCreateList"
+            class="btn btn-primary btn-sm mt-4"
+          >
+            Create reading list
+          </button>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+</main>

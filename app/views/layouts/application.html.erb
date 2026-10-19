@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html class="h-full">
+  <%= render "layouts/shared/head" %>
+
+  <body
+    class="h-full overflow-y-scroll"
+    data-platform="<%= platform.type %>"
+  >
+
+    <% if current_user %>
+      <%= turbo_stream_from "user_#{current_user.id}" %>
+
+      <%# Mobile drawer menu - only visible on mobile %>
+      <%= render DrawerComponent.new(current_user: current_user, current_path: request.path) %>
+
+      <%# Main container %>
+      <div class="min-h-screen flex flex-col sm:flex-row justify-center <%= content_for?(:page_bg_class) ? yield(:page_bg_class) : "bg-base-100" %>" <%= raw yield(:page_data_attributes) if content_for?(:page_data_attributes) %>>
+
+        <%# Mobile top bar - only visible on mobile %>
+        <header class="sm:hidden sticky top-0 z-30 bg-base-100 border-b border-base-200 px-4 py-3 flex items-center justify-between">
+          <%# Hamburger menu button %>
+          <label for="mobile-drawer" class="btn btn-ghost btn-sm btn-circle text-base text-base-content/50 hover:text-white">
+            <%= icon_tag "menu", class: "w-6 h-6" %>
+          </label>
+
+          <%# Logo icon - visible on sm/md, hidden on lg %>
+          <div class="flex justify-center">
+            <a href="/"><%= render "shared/logo/logo", class: "h-6" %></a>
+          </div>
+
+          <%# Spacer for symmetry %>
+          <div class="w-8"></div>
+        </header>
+
+        <%# Layout container %>
+        <div class="flex flex-1 w-full flex-row justify-center max-w-5xl 2xl:max-w-6xl">
+          <%= render SidebarComponent.new(current_user: current_user, current_path: request.path) %>
+
+          <%# Main content with bottom padding on mobile for bottom nav %>
+          <div class="flex-1 pb-16 sm:pb-0 w-full sm:border-r border-base-200">
+            <%= yield %>
+          </div>
+
+          <%= render "shared/fab_button" %>
+
+          <%= render "layouts/shared/right_column" %>
+        </div>
+      </div>
+
+      <%# Bottom navigation - only visible on mobile %>
+      <%= render BottomNavigationComponent.new(current_user: current_user, current_path: request.path) %>
+
+      <%= render "layouts/shared/add_site_modal" %>
+      <%= render "shared/remove_website_modal" %>
+      <%= render "shared/remove_article_modal" %>
+      <%= render "layouts/shared/reading_list_modal" %>
+      <%= render "layouts/shared/reading_list_modal", edit_mode: true %>
+      <%= render AddToListModalComponent.new(lists: current_user.reading_lists) %>
+      <%= render "shared/delete_list_modal" %>
+    <% else %>
+      <%= yield %>
+    <% end %>
+
+    <%= render "layouts/shared/flashes" %>
+  </body>
+</html>

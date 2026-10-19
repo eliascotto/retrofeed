@@ -1,0 +1,7 @@
+today:
+  date: <%= Date.current %>
+  count: 50
+
+yesterday:
+  date: <%= Date.current - 1.day %>
+  count: 100

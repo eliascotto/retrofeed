@@ -1,0 +1,144 @@
+<%# Mobile drawer menu - only visible on small screens %>
+<div class="drawer sm:hidden" data-controller="drawer">
+  <input id="mobile-drawer" type="checkbox" class="drawer-toggle" data-drawer-target="toggle">
+
+  <%#
+    CSS to ensure the drawer overlay properly blocks all clicks when open.
+    The drawer wrapper needs to create a stacking context above all other content.
+    Hide FAB and bottom nav when drawer is open to prevent click-through issues.
+  %>
+  <style>
+    /* When drawer is open, the wrapper must be fixed and cover everything */
+    .drawer:has(#mobile-drawer:checked) {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 9999 !important;
+    }
+    #mobile-drawer:checked ~ .drawer-side {
+      z-index: 9999 !important;
+    }
+    #mobile-drawer:checked ~ .drawer-side > .drawer-overlay {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 9998 !important;
+      pointer-events: auto !important;
+      cursor: pointer;
+      /* Use solid color to fully hide background content on dark themes */
+      background: rgb(0 0 0 / 0.3) !important;
+    }
+    /* Drawer content panel must be above the overlay */
+    #mobile-drawer:checked ~ .drawer-side > .menu {
+      z-index: 10000 !important;
+      position: relative !important;
+    }
+    /* Hide FAB and bottom nav when drawer is open using :has() */
+    body:has(#mobile-drawer:checked) .fab,
+    body:has(#mobile-drawer:checked) nav.fixed.bottom-0 {
+      display: none !important;
+    }
+  </style>
+
+  <%# Drawer side panel %>
+  <div class="drawer-side">
+    <%# Overlay backdrop %>
+    <label for="mobile-drawer" aria-label="Close sidebar" class="drawer-overlay"></label>
+
+    <%# Drawer content %>
+    <div class="menu bg-base-100 min-h-full w-72 p-4 pt-6">
+      <%# Header with close button %>
+      <div class="flex items-center justify-between mb-4 px-2">
+        <div class="flex items-center gap-3">
+          <%# User avatar %>
+          <div class="w-10 h-10 rounded-full bg-primary/60 flex items-center justify-center">
+            <span class="text-sm font-medium text-base-content"><%= current_user.handle&.[](0)&.upcase || "?" %></span>
+          </div>
+          <div>
+            <p class="font-semibold text-base-content"><%= current_user.handle.presence || "User" %></p>
+          </div>
+        </div>
+        <button
+          data-action="click->drawer#close"
+          class="btn btn-ghost btn-sm btn-circle shadow-none text-base text-base-content/50 hover:text-white">
+          <%= helpers.icon_tag "x", class: "w-5 h-5" %>
+        </button>
+      </div>
+
+      <hr class="border-base-200 mb-4">
+
+      <%# Navigation Links %>
+      <nav class="space-y-1">
+        <%# Home link %>
+        <% home_active = active?(helpers.root_path) %>
+        <%= link_to helpers.root_path, class: nav_link_classes(active: home_active), data: { action: "click->drawer#close" } do %>
+          <%= helpers.icon_tag "home", class: "icon icon--md" %>
+          <span>Home</span>
+        <% end %>
+
+        <%# Read Next link %>
+        <% if read_next_list %>
+          <% read_next_active = active?(helpers.list_path(read_next_list)) %>
+          <%= link_to helpers.list_path(read_next_list), class: nav_link_classes(active: read_next_active), data: { action: "click->drawer#close" } do %>
+            <%= helpers.icon_tag "bookmark", class: "icon icon--md" %>
+            <span>Read Next</span>
+          <% end %>
+        <% end %>
+
+        <%# Search link %>
+        <% search_active = active?(helpers.search_path) %>
+        <%= link_to helpers.search_path, class: nav_link_classes(active: search_active), data: { action: "click->drawer#close" } do %>
+          <%= helpers.icon_tag "search", class: "icon icon--md" %>
+          <span>Search</span>
+        <% end %>
+
+        <%# Sites link %>
+        <% sites_active = active?(helpers.sites_path) || active_prefix?("/sites") %>
+        <%= link_to helpers.sites_path, class: nav_link_classes(active: sites_active), data: { action: "click->drawer#close" } do %>
+          <%= helpers.icon_tag "globe", class: "icon icon--md" %>
+          <span>Websites</span>
+        <% end %>
+
+        <%# Reading Lists link %>
+        <% lists_active = active?(helpers.lists_path) %>
+        <%= link_to helpers.lists_path, class: nav_link_classes(active: lists_active), data: { action: "click->drawer#close" } do %>
+          <%= helpers.icon_tag "list", class: "icon icon--md" %>
+          <span>Reading Lists</span>
+        <% end %>
+
+        <%# Settings link %>
+        <% settings_active = active?(helpers.settings_path) %>
+        <%= link_to helpers.settings_path, class: nav_link_classes(active: settings_active), data: { action: "click->drawer#close" } do %>
+          <%= helpers.icon_tag "settings", class: "icon icon--md" %>
+          <span>Settings</span>
+        <% end %>
+      </nav>
+
+      <hr class="border-base-200 my-4">
+
+      <%# Add Website Button %>
+      <button
+        data-controller="modal-trigger"
+        data-action="click->modal-trigger#open
+                     click->drawer#close"
+        data-modal-trigger-event-value="openAddWebsite"
+        class="btn btn-primary w-full gap-2"
+        title="Add Website"
+      >
+        <%= helpers.icon_tag "plus", class: "w-5 h-5" %>
+        Add Website
+      </button>
+
+      <%# Spacer %>
+      <div class="flex-1"></div>
+
+      <%# Footer with logout %>
+      <div class="mt-auto pt-4 border-t border-base-200">
+        <%= link_to helpers.session_path(@current_user.id), data: { turbo_method: :delete }, class: "flex items-center gap-3 px-4 py-3 rounded-lg text-base-content/70 hover:bg-base-200 transition-colors" do %>
+          <%= helpers.icon_tag "logout", class: "icon icon--md" %>
+          <span>Log out</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

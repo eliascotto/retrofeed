@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  domain: example.com
+  archive_url: MyString
+  last_crawled_at: 2025-12-01 16:11:42
+  processing_status: pending
+
+two:
+  name: MyString
+  domain: example2.com
+  archive_url: MyString
+  last_crawled_at: 2025-12-01 16:11:42
+  processing_status: pending

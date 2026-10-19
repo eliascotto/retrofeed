@@ -1,0 +1,49 @@
+<%# Reading settings dropdown.
+    Hybrid: details/summary on desktop, Popover API on mobile to avoid off-screen
+    positioning issues. Settings persist in localStorage via the reading-settings
+    Stimulus controller. %>
+<% unique_id ||= SecureRandom.hex(4) %>
+<% popover_id  = "reading-settings-popover-#{unique_id}" %>
+<% anchor_name = "--reading-settings-anchor-#{unique_id}" %>
+
+<div data-controller="reading-settings">
+  <%# Desktop: details/summary (hidden on mobile) %>
+  <div class="hidden sm:block" data-controller="dropdown">
+    <details class="dropdown dropdown-end" data-dropdown-target="details">
+      <summary class="btn btn-ghost btn-xs gap-1" title="Reading settings">
+        <%= icon_tag "settings", class: "w-3.5 h-3.5" %>
+      </summary>
+
+      <div class="dropdown-content bg-base-200 dark:bg-base-100 rounded-lg shadow-lg z-50 p-3 w-56 mt-2 border border-base-200">
+        <%= render "shared/reading_settings_groups" %>
+      </div>
+    </details>
+  </div>
+
+  <%# Mobile: Popover API (visible on mobile only) %>
+  <div class="block sm:hidden">
+    <%# Override DaisyUI dropdown visibility when popover is open %>
+    <style>
+      #<%= popover_id %>:popover-open {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+    </style>
+
+    <button type="button"
+            popovertarget="<%= popover_id %>"
+            class="btn btn-ghost btn-xs gap-1"
+            title="Reading settings"
+            style="anchor-name: <%= anchor_name %>">
+      <%= icon_tag "settings", class: "w-3.5 h-3.5" %>
+    </button>
+
+    <div popover="auto"
+         id="<%= popover_id %>"
+         class="dropdown bg-base-200 dark:bg-base-100 rounded-lg shadow-lg z-100 p-3 w-56 border border-base-200"
+         style="position-anchor: <%= anchor_name %>">
+      <%= render "shared/reading_settings_groups" %>
+    </div>
+  </div>
+</div>

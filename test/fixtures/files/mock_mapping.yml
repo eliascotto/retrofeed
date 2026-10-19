@@ -1,0 +1,69 @@
+# Mock mapping configuration for WebFetcher::Mock
+#
+# This file maps domains to fixture directories and specifies archive paths.
+# Used when MOCK_WEB_DATA=true in development to return fixture data
+# instead of making real HTTP requests.
+#
+# Structure:
+#   domains:
+#     <domain>: <fixture_directory_name>
+#   archive_paths:
+#     <fixture_directory_name>:
+#       - <path1>
+#       - <path2>
+#
+# Archive URLs for testing:
+#   https://journal.stuffwithstuff.com/archive
+#   https://mitchellh.com/writing
+#   https://macwright.com/writing
+#   https://overreacted.io/
+#   https://thinkingeek.com/archives
+#   https://greydanus.github.io/
+#   https://marijnhaverbeke.nl/blog
+#   https://paulgraham.com/articles.html
+#   https://lisper.in/
+#   https://infinite-scroll-test.example.com/
+
+domains:
+  journal.stuffwithstuff.com: journal
+  mitchellh.com: mitchellh
+  macwright.com: macwright
+  overreacted.io: overreacted
+  thinkingeek.com: thinkingeek
+  greydanus.github.io: greydanus
+  marijnhaverbeke.nl: marijnhaverbeke
+  paulgraham.com: paulgraham
+  lisper.in: lisper
+  emgoto.com: emgoto
+  infinite-scroll-test.example.com: infinite_scroll
+
+archive_paths:
+  journal:
+    - /archive
+    - /archive/
+  mitchellh:
+    - /writing
+    - /writing/
+  macwright:
+    - /writing
+    - /writing/
+  overreacted:
+    - /
+  thinkingeek:
+    - /archives
+    - /archives/
+  greydanus:
+    - /
+  marijnhaverbeke:
+    - /blog
+    - /blog/
+  paulgraham:
+    - /articles.html
+  lisper:
+    - /
+  emgoto:
+    - /
+  infinite_scroll:
+    - /
+    - /blog
+

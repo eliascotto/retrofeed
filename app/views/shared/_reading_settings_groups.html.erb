@@ -1,0 +1,39 @@
+<% reading_setting_groups.each do |group| %>
+  <div class="mb-3">
+    <p class="text-xs font-medium text-base-content/60 mb-1.5"><%= group[:title] %></p>
+    <div class="flex gap-1">
+      <% group[:options].each do |option| %>
+        <button type="button"
+                data-action="click->reading-settings#<%= group[:action] %>"
+                data-reading-settings-value-param="<%= option[:value] %>"
+                class="btn btn-xs flex-1 btn-ghost shadow-none <%= option[:btn_class] %>"
+                data-reading-settings-target="<%= reading_setting_target(group[:key], option[:value]) %>">
+          <span class="<%= option[:label_class] %>"><%= option[:label] %></span>
+        </button>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<%# Content width: two-button stepper across 5 steps (xs..xl).
+    The Stimulus controller (reading-settings) walks an ordered list and
+    disables whichever button is at the boundary. %>
+<div>
+  <p class="text-xs font-medium text-base-content/60 mb-1.5">Width</p>
+  <div class="flex gap-1">
+    <button type="button"
+            title="Narrower"
+            data-action="click->reading-settings#widthSmaller"
+            data-reading-settings-target="contentWidthSmaller"
+            class="btn btn-xs flex-1 btn-ghost shadow-none text-base">
+      <%= icon_tag "chevrons-right-left", class: "w-3.5 h-3.5" %>
+    </button>
+    <button type="button"
+            title="Wider"
+            data-action="click->reading-settings#widthLarger"
+            data-reading-settings-target="contentWidthLarger"
+            class="btn btn-xs flex-1 btn-ghost shadow-none text-base">
+      <%= icon_tag "move-horizontal", class: "w-3.5 h-3.5" %>
+    </button>
+  </div>
+</div>

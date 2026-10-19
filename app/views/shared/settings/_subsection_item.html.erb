@@ -1,0 +1,16 @@
+<%# Settings subsection list item component
+  Usage: render "shared/settings/subsection_item", title: "Handle", icon: "at-sign", path: settings_account_handle_path, value: "@username"
+%>
+<%= link_to local_assigns[:path], class: "flex items-center justify-between px-4 py-4 hover:bg-base-200 dark:hover:bg-base-200 cursor-default" do %>
+  <div class="flex-1 flex items-center gap-3 pr-2">
+    <%= icon_tag local_assigns[:icon], class: "w-5 h-5" %>
+    <div class="w-full flex flex-row items-center justify-between flex-col">
+      <span class="text-sm"><%= local_assigns[:title] %></span>
+
+      <% if local_assigns[:value].present? %>
+        <span class="text-sm text-base-content/60"><%= local_assigns[:value] %></span>
+      <% end %>
+    </div>
+  </div>
+  <%= icon_tag "chevron-right", class: "w-4 h-4 text-base-content/50" %>
+<% end %>

@@ -1,0 +1,28 @@
+title = "Retrofeed release secret checks"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "rails-master-key"
+description = "Rails encryption keys, including backup files"
+path = '''(?:^|/)config/(?:credentials/)?[^/]+\.key(?:[.~_-].*)?$'''
+regex = '''\b([a-fA-F0-9]{32})\b'''
+secretGroup = 1
+
+[[rules]]
+id = "rails-secret-key-base"
+description = "Unencrypted Rails signing secret"
+regex = '''(?i)secret_key_base\s*[:=]\s*["']?([a-f0-9]{64,})'''
+secretGroup = 1
+keywords = ["secret_key_base"]
+
+# This public Mapbox token is embedded in a third-party article's example URL.
+# Keep the exception limited to that token type in that one article.
+[[allowlists]]
+description = "Public Mapbox example in historical website fixture"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''(?:^|/)test/fixtures/(?:websites/)?macwright/articles/2015-08-31-canvas-animations-on-maps\.html$''']
+regexTarget = "secret"
+regexes = ['''^pk\.[A-Za-z0-9._-]+$''']

@@ -1,0 +1,45 @@
+<%# Reading list item with context menu dropdown %>
+<%# Usage: render "shared/reading_list_item", list: @list, active: true/false %>
+
+<% active ||= false %>
+
+<div class="flex items-center gap-2 px-2 py-1.5 -mx-2 rounded hover:bg-base-200 transition-colors group reading-list-item">
+  <%= link_to list_path(list), class: "flex-1 flex items-center gap-2 min-w-0 cursor-pointer" do %>
+    <span class="truncate text-sm <%= active ? 'text-base-content font-medium' : 'text-base-content/60' %>"><%= list.title %></span>
+  <% end %>
+
+  <!-- Context menu -->
+  <%= render DropdownComponent.new(
+      position: "bottom-left",
+      size: "sm",
+      trigger_class: "opacity-0 group-hover:opacity-100 transition-opacity text-base"
+      ) do |dropdown| %>
+    <% dropdown.with_item(
+      label: "Edit",
+      icon: "square-pen",
+      href: "#",
+      data: {
+        controller: "modal-trigger",
+        action: "click->modal-trigger#open",
+        modal_trigger_event_value: "openEditList",
+        modal_trigger_url_param: list_path(list),
+        modal_trigger_title_param: list.title,
+        modal_trigger_description_param: list.description,
+        modal_trigger_cover_param: (url_for(list.cover_image) if list.cover_image.attached?)
+      }
+    ) %>
+    <% dropdown.with_item(
+      label: "Delete",
+      icon: "trash",
+      href: "#",
+      data: {
+        controller: "modal-trigger",
+        action: "click->modal-trigger#open",
+        modal_trigger_event_value: "openDeleteList",
+        modal_trigger_id_param: list.id,
+        modal_trigger_name_param: j(list.title),
+        modal_trigger_path_param: list_path(list)
+      }
+    ) %>
+  <% end %>
+</div>

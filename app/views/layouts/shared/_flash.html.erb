@@ -1,0 +1,10 @@
+<%# locals: (message:, level: :info) %>
+<% class_level = "flash__item--#{level}" %>
+<div class="flash__item <%= class_level %>"
+     data-controller="element-removal"
+     data-action="animationend->element-removal#remove">
+  <% if flash_icon(level) %>
+    <%= icon_tag flash_icon(level), class: "flash__icon" %>
+  <% end %>
+  <span class="flash__message"><%= message %></span>
+</div>

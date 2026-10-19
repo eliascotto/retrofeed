@@ -1,0 +1,13 @@
+<%= render "shared/auth_form_container" do %>
+  <h1 class="text-2xl mb-8 text-center text-base-content">Choose Your Handle</h1>
+
+  <p class="mb-5 text-base-content/70 text-sm">
+    Your handle is a unique identifier that will be visible to others. Choose something memorable!
+  </p>
+
+  <%= form_with url: handle_setups_path, method: :post, local: true, data: { turbo: false } do |f| %>
+    <%= render partial: "shared/auth_field", locals: { form: f, field: :handle, label: "Handle", type: :text, required: true, autofocus: true, margin_bottom: 30 } %>
+
+    <%= render partial: "shared/auth_submit_button", locals: { text: "Complete Setup" } %>
+  <% end %>
+<% end %>

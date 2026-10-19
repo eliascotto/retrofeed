@@ -1,0 +1,123 @@
+<%# Sidebar - hidden on mobile, icon-only on sm/md, full on lg %>
+<aside class="hidden sm:block sm:w-16 lg:w-52 shrink-0 border-r border-base-200 overscroll-contain sticky top-0 h-screen sm:min-w-16 lg:min-w-56">
+  <nav class="sticky top-0 h-screen flex flex-col px-2 lg:pr-3 lg:pl-0 py-3">
+
+    <%# Header with logo %>
+    <div class="flex flex-row items-center justify-center lg:justify-between px-2 pt-1 mb-4">
+      <%# Full logo - hidden on sm/md, visible on lg %>
+      <div class="hidden lg:flex flex-row items-center justify-center gap-2">
+        <%= render "shared/logo/logo_full", class: "h-6.5" %>
+      </div>
+
+      <%# Logo icon - visible on sm/md, hidden on lg %>
+      <div class="lg:hidden flex justify-center">
+        <%= render "shared/logo/logo", class: "h-5" %>
+      </div>
+
+      <div
+        class="text-base-content/30 hover:text-base-content transition-colors hover:bg-base-20
+            rounded-full p-2 leading-0 lg:block hidden"
+        data-controller="modal-trigger tooltip"
+        data-action="click->modal-trigger#open"
+        data-modal-trigger-event-value="openAddWebsite"
+        data-tooltip-placement-value="bottom"
+        data-tooltip-delay-value="800"
+      >
+        <%= helpers.icon_tag "circle-plus", class: "icon icon--md flex-shrink-0" %>
+        <div data-tooltip-target="tooltip" style="display:none" class="tooltip tooltip--sm">
+          Add a new website to your library
+        </div>
+      </div>
+    </div>
+
+    <%# Navigation Links %>
+    <div class="flex-1 space-y-2 lg:space-y-0.5">
+      <%# Home link %>
+      <% home_active = active?(helpers.root_path) %>
+      <%= link_to helpers.root_path, class: nav_link_classes(active: home_active),
+          data: { controller: "tooltip", tooltip_placement_value: "right", tooltip_delay_value: 800 } do %>
+        <%= helpers.icon_tag "home", class: "icon icon--md text-lg lg:text-base flex-shrink-0" %>
+        <span class="hidden lg:inline">Home</span>
+        <div data-tooltip-target="tooltip" style="display:none" class="tooltip tooltip--sm">Home</div>
+      <% end %>
+
+      <%# Search link %>
+      <% search_active = active?(helpers.search_path) %>
+      <%= link_to helpers.search_path, class: nav_link_classes(active: search_active),
+          data: { controller: "tooltip", tooltip_placement_value: "right", tooltip_delay_value: 800 } do %>
+        <%= helpers.icon_tag "search", class: "icon icon--md text-lg lg:text-base flex-shrink-0" %>
+        <span class="hidden lg:inline">Search</span>
+        <div data-tooltip-target="tooltip" style="display:none" class="tooltip tooltip--sm">Search</div>
+      <% end %>
+
+      <%# Read Next link %>
+      <% if read_next_list %>
+        <% read_next_active = active?(helpers.list_path(read_next_list)) %>
+        <%= link_to helpers.list_path(read_next_list), class: nav_link_classes(active: read_next_active),
+            data: { controller: "tooltip", tooltip_placement_value: "right", tooltip_delay_value: 800 } do %>
+          <%= helpers.icon_tag "bookmark", class: "icon icon--md text-lg lg:text-base flex-shrink-0" %>
+          <span class="hidden lg:inline">Read Next</span>
+          <div data-tooltip-target="tooltip" style="display:none" class="tooltip tooltip--sm">Read Next</div>
+        <% end %>
+      <% end %>
+
+      <%# Sites link %>
+      <% sites_active = active?(helpers.sites_path) || active_prefix?("/sites") %>
+      <%= link_to helpers.sites_path, class: nav_link_classes(active: sites_active),
+          data: { controller: "tooltip", tooltip_placement_value: "right", tooltip_delay_value: 800 } do %>
+        <%= helpers.icon_tag "library", class: "icon icon--md text-lg lg:text-base flex-shrink-0" %>
+        <span class="hidden lg:inline">Library</span>
+        <div data-tooltip-target="tooltip" style="display:none" class="tooltip tooltip--sm">Library</div>
+      <% end %>
+
+      <%# Reading Lists link %>
+      <% lists_active = active?(helpers.lists_path) %>
+      <%= link_to helpers.lists_path, class: nav_link_classes(active: lists_active),
+          data: { controller: "tooltip", tooltip_placement_value: "right", tooltip_delay_value: 800 } do %>
+        <%= helpers.icon_tag "list", class: "icon icon--md text-lg lg:text-base flex-shrink-0" %>
+        <span class="hidden lg:inline">Reading Lists</span>
+        <div data-tooltip-target="tooltip" style="display:none" class="tooltip tooltip--sm">Reading Lists</div>
+      <% end %>
+
+      <%# Settings link %>
+      <% settings_active = active?(helpers.settings_path) %>
+      <%= link_to helpers.settings_path, class: nav_link_classes(active: settings_active),
+          data: { controller: "tooltip", tooltip_placement_value: "right", tooltip_delay_value: 800 } do %>
+        <%= helpers.icon_tag "settings", class: "icon icon--md text-lg lg:text-base flex-shrink-0" %>
+        <span class="hidden lg:inline">Settings</span>
+        <div data-tooltip-target="tooltip" style="display:none" class="tooltip tooltip--sm">Settings</div>
+      <% end %>
+
+      <%# Add Site Button - full on lg, icon-only on sm/md %>
+      <div class="mt-3 mb-3 flex justify-center">
+        <%# Full button - visible on lg %>
+
+        <%# Icon-only button - visible on sm/md %>
+        <button
+          data-controller="modal-trigger"
+          data-action="click->modal-trigger#open"
+          data-modal-trigger-event-value="openAddWebsite"
+          class="lg:hidden btn btn-circle"
+          data-tooltip-placement-value="right"
+          data-tooltip-delay-value="800"
+        >
+          <%= helpers.icon_tag "plus" %>
+          <div data-tooltip-target="tooltip" style="display:none" class="tooltip tooltip--sm">Add Website</div>
+        </button>
+      </div>
+
+    </div>
+
+    <%# User Profile Menu %>
+    <div class="lg:border-t border-base-200 pt-3">
+      <%# Full menu - visible on lg %>
+      <div class="hidden lg:block">
+        <%= render "shared/user_menu", user: current_user %>
+      </div>
+      <%# Icon-only avatar - visible on sm/md %>
+      <div class="lg:hidden flex justify-center">
+        <%= render "shared/user_menu", user: current_user, compact: true %>
+      </div>
+    </div>
+  </nav>
+</aside>

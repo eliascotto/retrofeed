@@ -1,0 +1,107 @@
+<!-- Main content -->
+<main class="flex-1 flex flex-col min-w-0 h-full">
+    <!-- Search Bar -->
+    <div class="sticky top-0 z-10 bg-base-100/95 backdrop-blur border-b border-base-200 px-4 py-3">
+        <div class="max-w-2xl mx-auto">
+        <%= render SearchBarComponent.new(
+            action_url: search_path,
+            value: @query,
+            size: "lg",
+            placeholder: "Search articles and sites...",
+            show_clear_button: true,
+            autofocus: true,
+            data_controller: "search",
+            data_action: "submit->search#handleSubmit",
+            data_form_target: "form",
+            data_input_target: "input",
+            hidden_fields: {
+              tab: { value: @tab, data: { "search-target": "tabInput" } }
+            }
+        ) %>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto">
+        <div class="max-w-2xl mx-auto px-2 py-4">
+        <% if @query.present? %>
+            <!-- Tabs (only show if sites are available) -->
+            <% if @sites.any? %>
+            <div class="flex w-full border-b border-base-200 mb-4" data-search-target="tabs">
+                <button
+                type="button"
+                data-action="click->search#switchTab"
+                data-tab="articles"
+                class="flex-1 px-4 py-2 text-sm font-medium text-center border-b-2 transition-colors <%= @tab == 'articles' ? 'border-primary text-base-content' : 'cursor-pointer border-transparent text-base-content/60 hover:text-base-content' %>"
+                >
+                Articles
+                </button>
+                <button
+                type="button"
+                data-action="click->search#switchTab"
+                data-tab="sites"
+                class="flex-1 px-4 py-2 text-sm font-medium text-center border-b-2 transition-colors <%= @tab == 'sites' ? 'border-primary text-base-content' : 'cursor-pointer border-transparent text-base-content/60 hover:text-base-content' %>"
+                >
+                Sites
+                </button>
+            </div>
+            <% end %>
+
+            <!-- Results -->
+            <% if @tab == "articles" %>
+            <% if @articles.any? %>
+                <div class="space-y-2">
+                <% @articles.each do |article| %>
+                    <%= render "searches/article_result", article: article, query: @query %>
+                <% end %>
+                </div>
+                <% if @articles_total_pages > 1 %>
+                <%= render "shared/pagination",
+                    current_page: @articles_page,
+                    total_pages: @articles_total_pages,
+                    total_count: @articles_total,
+                    base_params: { q: @query, tab: "articles" } %>
+                <% end %>
+            <% else %>
+                <div class="flex flex-col items-center justify-center py-12">
+                <div class="w-12 h-12 mb-4 rounded-full bg-base-200 dark:bg-base-300 flex items-center justify-center">
+                    <%= icon_tag "file", class: "w-5 h-5 text-base-content/40" %>
+                </div>
+                <p class="text-sm text-base-content/50">No articles found</p>
+                </div>
+            <% end %>
+            <% else %>
+            <% if @sites.any? %>
+                <div class="space-y-2">
+                <% @sites.each do |site| %>
+                    <%= render "searches/site_result", site: site, query: @query %>
+                <% end %>
+                </div>
+                <% if @sites_total_pages > 1 %>
+                <%= render "shared/pagination",
+                    current_page: @sites_page,
+                    total_pages: @sites_total_pages,
+                    total_count: @sites_total,
+                    base_params: { q: @query, tab: "sites" } %>
+                <% end %>
+            <% else %>
+                <div class="flex flex-col items-center justify-center py-12">
+                <div class="w-12 h-12 mb-4 rounded-full bg-base-200 dark:bg-base-300 flex items-center justify-center">
+                    <%= icon_tag "globe", class: "w-5 h-5 text-base-content/40" %>
+                </div>
+                <p class="text-sm text-base-content/50">No sites found</p>
+                </div>
+            <% end %>
+            <% end %>
+        <% else %>
+            <!-- Empty state when no query -->
+            <div class="flex flex-col items-center justify-center py-12">
+            <div class="w-12 h-12 mb-4 rounded-full bg-base-200 dark:bg-base-200 flex items-center justify-center">
+                <%= icon_tag "search", class: "w-5 h-5 text-base-content/40" %>
+            </div>
+            <p class="text-sm text-base-content/50">Start typing to search articles and sites</p>
+            </div>
+        <% end %>
+        </div>
+    </div>
+</main>

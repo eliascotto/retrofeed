@@ -1,0 +1,44 @@
+<% compact ||= false %>
+<% avatar_initial = user.handle&.[](0)&.upcase || "?" %>
+<% trigger_class = compact ?
+     "btn btn-ghost btn-circle" :
+     "flex items-center gap-2 px-4 py-3 rounded-full hover:bg-base-200 transition-colors w-full" %>
+
+<%= render DropdownComponent.new(
+    position: compact ? "top-left" : "top-right",
+    size: "sm",
+    trigger_class: trigger_class,
+    use_popover_on_mobile: false,
+    class: compact ? "" : "w-full") do |dropdown| %>
+  <% dropdown.with_trigger do %>
+      <% if compact %>
+      <div class="w-8 h-8 rounded-full bg-primary/60 flex items-center justify-center">
+          <span class="text-sm font-medium text-base-content"><%= avatar_initial %></span>
+      </div>
+      <% else %>
+      <div class="w-6 h-6 rounded-full bg-primary/60 flex items-center justify-center shrink-0">
+          <span class="text-sm font-medium text-base-content"><%= avatar_initial %></span>
+      </div>
+      <div class="flex-1 min-w-0 text-gray-500 dark:text-gray-400 hover:text-base-content transition-colors text-left">
+          <p class="text-sm truncate"><%= user.handle.presence || "No handle" %></p>
+      </div>
+      <%= icon_tag "ellipsis", class: "w-4 h-4 text-base-content/40" %>
+      <% end %>
+  <% end %>
+
+  <% if user.admin? %>
+    <% dropdown.with_item(
+      label: "Admin/task",
+      icon: "lock",
+      icon_left: true,
+      href: admin_tasks_path(),
+    ) %>
+  <% end %>
+  <% dropdown.with_item(
+    label: "Log out",
+    icon: "logout",
+    icon_left: true,
+    href: session_path(user.id),
+    data: { turbo_method: :delete }
+  ) %>
+<% end %>

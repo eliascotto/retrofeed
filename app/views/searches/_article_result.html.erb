@@ -1,0 +1,68 @@
+<%
+  article = local_assigns[:article]
+  query = local_assigns[:query] || ""
+
+  # Extract snippet from content
+  content_text = article.content_text
+  snippet = nil
+  if content_text.present? && query.present?
+    # Find first occurrence of query (case-insensitive)
+    query_lower = query.downcase
+    content_lower = content_text.downcase
+    index = content_lower.index(query_lower)
+
+    if index
+      # Extract 150 characters around the match
+      start = [0, index - 50].max
+      length = [content_text.length - start, 150].min
+      snippet = content_text[start, length]
+      snippet = "..." + snippet if start > 0
+      snippet = snippet + "..." if start + length < content_text.length
+    else
+      # Fallback to first 150 characters
+      snippet = content_text[0, 150]
+      snippet = snippet + "..." if content_text.length > 150
+    end
+  end
+%>
+
+<%= link_to article_path(article), class: "block px-3 py-3 rounded-lg border border-base-200 hover:border-primary hover:bg-base-200/50 transition-colors group" do %>
+  <div class="flex items-start gap-3">
+    <!-- Type Badge -->
+    <div class="shrink-0">
+      <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-primary/10 text-primary">
+        Article
+      </span>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 min-w-0">
+      <h3 class="text-sm font-medium text-base-content group-hover:text-primary mb-1 line-clamp-2">
+        <%= highlight_search(article.title.presence || "Untitled", query) %>
+      </h3>
+
+      <% if snippet.present? %>
+        <p class="text-xs text-base-content/60 line-clamp-2 mt-1">
+          <%= highlight_search(snippet, query) %>
+        </p>
+      <% end %>
+
+      <div class="flex items-center gap-2 mt-2 text-xs text-base-content/40">
+        <% if article.website %>
+          <% if article.website.favicon.attached? %>
+            <%= image_tag url_for(article.website.favicon), alt: "", class: "w-3 h-3 object-contain" %>
+          <% end %>
+          <span><%= article.website.name.presence || article.website.domain %></span>
+        <% end %>
+        <% if article.publication_date %>
+          <span>·</span>
+          <span><%= article.publication_date.strftime("%b %d, %Y") %></span>
+        <% end %>
+        <% if article.word_count && article.word_count > 0 %>
+          <span>·</span>
+          <span><%= number_with_delimiter(article.word_count) %> words</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,116 @@
+<%
+  has_description = @list.description.present? && !@list.read_next?
+  has_cover_image = @list.cover_image.attached?
+%>
+
+<main class="flex-1 flex flex-col min-w-0 h-full">
+  <% if @list.read_next? %>
+    <%= render PageHeaderComponent.new(variant: :default, back_path: root_path, title: "Read Next") %>
+  <% elsif has_cover_image %>
+    <!-- Cover image with overlay header -->
+    <div class="relative">
+      <%= render PageHeaderComponent.new(variant: :overlay, back_path: root_path) %>
+      <%= image_tag @list.cover_image,
+          class: "w-full h-46 object-cover -mt-12 ring-2 ring-base-200 dark:ring-base-300" %>
+    </div>
+  <% else %>
+    <%= render PageHeaderComponent.new(variant: :default, back_path: root_path) %>
+  <% end %>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto">
+    <div class="mx-auto px-5 py-2">
+
+      <!-- List Header -->
+      <% if !@list.read_next? %>
+        <div class="flex flex-col mb-6 mt-4">
+
+          <!-- List Name with Edit Menu -->
+          <div class="flex flex-row justify-between gap-2">
+            <div class="flex-1">
+              <h1 class="text-2xl font-bold text-base-content"><%= @list.title %></h1>
+            </div>
+
+            <% unless @list.system_list? %>
+              <%= render DropdownComponent.new(
+                  position: "bottom-left",
+                  size: "sm",
+                  trigger_class: "transition-opacity text-base"
+                  ) do |dropdown| %>
+                <% dropdown.with_item(
+                    label: "Edit",
+                    icon: "square-pen",
+                    href: "#",
+                    data: {
+                      controller: "modal-trigger",
+                      action: "click->modal-trigger#open",
+                      modal_trigger_event_value: "openEditList",
+                      modal_trigger_url_param: list_path(@list),
+                      modal_trigger_title_param: @list.title,
+                      modal_trigger_description_param: @list.description,
+                      modal_trigger_cover_param: (url_for(@list.cover_image) if @list.cover_image.attached?)
+                    }
+                ) %>
+                <% dropdown.with_item(
+                    label: "Delete",
+                    icon: "trash",
+                    href: "#",
+                    data: {
+                      controller: "modal-trigger",
+                      action: "click->modal-trigger#open",
+                      modal_trigger_event_value: "openDeleteList",
+                      modal_trigger_id_param: @list.id,
+                      modal_trigger_name_param: j(@list.title),
+                      modal_trigger_path_param: list_path(@list)
+                    }
+                ) %>
+              <% end %>
+            <% end %>
+          </div>
+
+          <!-- Description -->
+          <% if has_description %>
+            <p class="text-sm text-base-content/60 max-w-md mt-2"><%= @list.description %></p>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- Stats -->
+      <% if @list_articles.any? %>
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-xs text-base-content/50">
+            <%= pluralize(@list_articles.count, "article") %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Articles List -->
+      <% if @list_articles.any? %>
+        <div class="space-y-1">
+          <% @list_articles.each do |list_article| %>
+            <% article = list_article.article %>
+            <% is_read = @read_article_ids.include?(article.id) %>
+            <%= render ::ArticleItem::Component.new(
+              current_user: current_user,
+              article: article,
+              is_read: is_read,
+              show_website: true,
+              show_favicon: true,
+              list: @list,
+              in_read_next: @list.read_next?) %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="flex flex-col items-center justify-center py-12">
+          <div class="w-12 h-12 mb-4 rounded-full bg-base-200 dark:bg-base-200 flex items-center justify-center">
+            <%= icon_tag "bookmark", class: "w-5 h-5 text-base-content/40" %>
+          </div>
+          <div class="gap-2 flex flex-col items-center mb-4">
+            <p class="text-sm text-base-content/50">No articles in this list yet</p>
+            <p class="text-xs text-base-content/40 mt-1">Add articles to it from the websites in your library</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</main>

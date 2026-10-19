@@ -1,0 +1,18 @@
+<%#
+  Shared shell for authentication pages: a centered RetroFeed logo, a titled card
+  holding the form, and optional footer links rendered beneath the card.
+%>
+<div class="max-w-md mx-auto mt-24">
+  <div class="h-8 w-full mx-0 my-auto shrink-0 block mb-7">
+    <%= image_tag "logo.svg", alt: "RetroFeed logo", class: "w-full h-full object-contain block" %>
+  </div>
+
+  <div class="p-5 bg-base-200 rounded-lg">
+    <h1 class="text-2xl mb-4 text-center text-base-content font-bold"><%= title %></h1>
+    <%= yield %>
+  </div>
+
+  <% if local_assigns[:footer].present? %>
+    <%= footer %>
+  <% end %>
+</div>

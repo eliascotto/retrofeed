@@ -1,0 +1,82 @@
+<%# Right Column - hidden on mobile/sm/md, visible on lg %>
+<aside
+  class="hidden lg:block w-52 shrink-0 top-0 h-screen min-w-56 relative pl-4"
+  data-controller="collapsible"
+  data-collapsible-key-value="right_sidebar_collapsed">
+
+  <%# Collapse toggle %>
+  <div
+    data-collapsible-toggle
+    data-action="click->collapsible#toggle"
+    data-controller="tooltip"
+    data-tooltip-placement-value="bottom"
+    data-tooltip-delay-value="800"
+    class="z-100 text-base-content/30 hover:text-base-content transition-colors mt-3 leading-0">
+    <%= icon_tag "panel-right-close", data: { collapsible_target: "iconClose" }, class: "icon icon--md " %>
+    <%= icon_tag "panel-right-open",  data: { collapsible_target: "iconOpen"  }, class: "icon icon--md hidden" %>
+    <div data-tooltip-target="tooltip" style="display:none" class="tooltip tooltip--sm">
+      Collapse sidebar
+    </div>
+  </div>
+
+  <div data-collapsible-target="panel" class="sticky top-0 flex flex-col pt-1">
+
+    <% unless current_page?(search_path) %>
+      <!-- Search Form -->
+      <div class="mt-3">
+        <%= render SearchBarComponent.new(
+          action_url: search_path,
+          value: params[:q],
+          placeholder: "Search...",
+          size: :md
+        ) %>
+      </div>
+    <% end %>
+
+    <% unless current_page?(search_path) %>
+      <hr class="my-6 border-base-200">
+    <% end %>
+
+    <!-- Reading Lists Section -->
+    <div class="pl-2">
+
+      <% if current_user.reading_lists.any? %>
+        <h3 class="text-xs font-semibold text-base-content/50 uppercase tracking-wider mb-2">Reading Lists</h3>
+
+        <nav class="space-y-0.5">
+
+          <% if current_user.reading_lists.count > 6 %>
+            <% current_user.reading_lists(order: { updated_at: :desc }).limit(7).each do |list| %>
+              <%= render "layouts/shared/reading_list_item", list: list, active: current_page?(list_path(list)) %>
+            <% end %>
+            <%# Link to all lists %>
+            <%= link_to lists_path, class: "flex items-center gap-2 px-2 py-1.5 -mx-2 rounded text-sm text-base-content/60 underline hover:text-primary transition-colors w-full mt-1" do %>
+              <span>All</span>
+            <% end %>
+
+          <% else %>
+              <% current_user.reading_lists(order: { updated_at: :desc }).each do |list| %>
+                <%= render "layouts/shared/reading_list_item", list: list, active: current_page?(list_path(list)) %>
+              <% end %>
+          <% end %>
+        </nav>
+      <% end %>
+    </div>
+
+    <div class="flex flex-row justify-center <%= current_user.reading_lists.any? ? 'mt-4' : '' %>">
+      <button
+        type="button"
+        class="btn btn-sm bg-base-200 hover:bg-primary px-6 py-4 text-base-content
+            hover:text-primary-content border border-base-300 w-fit shadow-none
+            hover:shadow-(--btn-shadow) hover:border-primary"
+        data-controller="modal-trigger"
+        data-action="click->modal-trigger#open"
+        data-modal-trigger-event-value="openCreateList"
+      >
+        <%= icon_tag "plus", class: "text-base" %>
+        Reading list
+      </button>
+    </div>
+
+  </div>
+</aside>

@@ -1,0 +1,6 @@
+@layer components {
+  .badge {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+}

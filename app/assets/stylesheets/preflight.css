@@ -1,0 +1,66 @@
+@layer reset {
+  /* Source: https://tailwindcss.com/docs/preflight */
+  
+  /* Default margins are removed */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Border styles are reset globally */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    box-sizing: border-box;
+    border: 0 solid;
+  }
+
+  /* Headings are unstyled */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  /* Lists are unstyled */
+  ol,
+  ul,
+  menu {
+    list-style: none;
+  }
+
+  /* Images are block-level */
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
+    display: block;
+    vertical-align: middle;
+  }
+
+  /* Images are constrained */
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Elements with a hidden attribute stay hidden */
+  [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
+  }
+}

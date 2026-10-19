@@ -1,0 +1,27 @@
+{
+  "name": "@retrofeed/scrapers",
+  "version": "1.0.0",
+  "description": "Blog archive and article scrapers for Retrofeed",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "scraper": "./bin/scraper.js"
+  },
+  "scripts": {
+    "scraper": "node bin/scraper.js",
+    "test": "node --test",
+    "test:watch": "node --test --watch"
+  },
+  "keywords": ["scraper", "blog", "rss", "archive"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

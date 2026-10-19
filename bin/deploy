@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+require "bundler/setup"
+require "dotenv"
+
+# Load deployment settings before Kamal evaluates ERB in config/deploy.yml.
+Dir.chdir(File.expand_path("..", __dir__)) do
+  env_file = File.exist?(".env.production") ? ".env.production" : ".env"
+  Dotenv.load(env_file)
+
+  puts "Syncing environment variables..."
+  system(".kamal/hooks/pre-connect", exception: true)
+
+  command = ARGV.empty?() ? [ "deploy" ] : ARGV
+  exec("bundle", "exec", "kamal", *command)
+end

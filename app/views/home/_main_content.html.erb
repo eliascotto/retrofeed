@@ -1,0 +1,22 @@
+<!-- Main content -->
+<main class="flex-1 flex flex-col min-w-0 h-full">
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto">
+    <div id="main-content-body">
+      <%# Tabs %>
+      <div class="flex w-full border-b border-base-200 px-4">
+        <%= link_to root_path(tab: "recent"),
+            class: "flex-1 px-4 py-3 text-sm font-medium text-center border-b-2 transition-colors #{@tab == 'recent' ? 'border-primary text-base-content' : 'border-transparent text-base-content/60 hover:text-base-content'}" do %>
+          Recent
+        <% end %>
+        <%= link_to root_path(tab: "reading"),
+            class: "flex-1 px-4 py-3 text-sm font-medium text-center border-b-2 transition-colors #{@tab == 'reading' ? 'border-primary text-base-content' : 'border-transparent text-base-content/60 hover:text-base-content'}" do %>
+          Reading
+        <% end %>
+      </div>
+
+      <%# Articles list %>
+      <%= render "main_content_body" %>
+    </div>
+  </div>
+</main>

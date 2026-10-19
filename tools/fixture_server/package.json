@@ -1,0 +1,16 @@
+{
+  "name": "fixture-server",
+  "version": "1.0.0",
+  "description": "Serves fixture files for local development and testing",
+  "type": "module",
+  "main": "src/server.js",
+  "bin": {
+    "fixture-server": "./src/server.js"
+  },
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}

@@ -1,0 +1,31 @@
+<main class="flex-1 flex flex-col min-w-0 h-full">
+  <%= render PageHeaderComponent.new(
+      back_path: root_path,
+      title: "Settings",
+      size: :small
+  ) %>
+
+  <div class="flex-1 overflow-y-auto">
+    <div class="mx-auto">
+
+      <!-- User Profile Header -->
+      <div class="px-4 py-6">
+        <div class="flex items-center justify-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-primary/60 flex items-center justify-center shrink-0">
+            <span class="text-xl font-medium text-base-content"><%= @user.handle&.[](0)&.upcase || "?" %></span>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-base-content"><%= @user.fullname.presence || @user.handle || "User" %></h2>
+            <p class="text-sm text-base-content/60 dark:text-base-content/60">@<%= @user.handle || "unknown" %></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Sections -->
+      <div class="mt-2 border-b border-t border-base-200">
+        <%= render "shared/settings/section_item", title: "Account", icon: "user", path: settings_account_path %>
+        <%= render "shared/settings/section_item", title: "Appearance", icon: "palette", path: settings_appearance_path %>
+      </div>
+    </div>
+  </div>
+</main>

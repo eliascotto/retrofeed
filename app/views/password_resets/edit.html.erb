@@ -1,0 +1,35 @@
+<!-- Password reset - set new password page -->
+<% footer = capture do %>
+  <div class="mt-5 text-center text-sm">
+    <%= link_to "Go to Login", new_session_path, class: "link link-hover underline text-base-content" %>
+  </div>
+<% end %>
+
+<%= render "shared/auth_card", title: "Reset your password", footer: footer do %>
+  <%= form_with url: password_reset_path,
+    class: "mt-4",
+    method: :patch, local: true, data: { turbo: false } do |f| %>
+    <%= f.hidden_field :token, value: @token %>
+
+    <%= render partial: "shared/auth_field",
+        locals: {
+        form: f,
+        field: :password,
+        label: "Password",
+        type: :password,
+        required: true,
+        autofocus: true
+        } %>
+
+    <%= render partial: "shared/auth_field",
+        locals: {
+        form: f,
+        field: :password_confirmation,
+        label: "Confirm password",
+        type: :password,
+        required: true
+        } %>
+
+    <%= render partial: "shared/auth_submit_button", locals: { text: "Save password" } %>
+  <% end %>
+<% end %>

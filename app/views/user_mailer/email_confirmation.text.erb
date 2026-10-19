@@ -1,0 +1,10 @@
+Hi<%= @user.fullname.present? ? " #{@user.fullname}" : "" %>,
+
+Thanks for signing up for Retrofeed. Please confirm your email address by visiting the link below:
+
+<%= @confirmation_url %>
+
+This link will expire in <%= @expires_in.inspect %>. If you didn't create an account with Retrofeed, you can safely ignore this email.
+
+---
+RetroFeed

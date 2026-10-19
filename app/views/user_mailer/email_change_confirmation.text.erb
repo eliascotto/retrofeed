@@ -1,0 +1,10 @@
+Hey<%= @user.fullname.present? ? ", #{@user.fullname}" : " there" %>!
+
+We received a request to change the email address associated with your RetroFeed account. Please confirm your new email address by visiting the link below:
+
+<%= @confirmation_url %>
+
+This link will expire in <%= @expires_in.inspect %>. If you didn't request this change, please contact us immediately to secure your account.
+
+---
+RetroFeed

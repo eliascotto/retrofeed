@@ -1,0 +1,41 @@
+<%= render "shared/auth_form_container" do %>
+
+  <div class="flex flex-col items-center mb-6">
+    <div class="bg-primary/10 dark:bg-primary/20 rounded-full p-4 mb-4">
+      <%= icon_tag "mail", class: "w-12 h-12 text-primary" %>
+    </div>
+    <h1 class="text-2xl mb-2 text-center text-base-content">Check Your Email</h1>
+  </div>
+
+  <div class="alert alert-info mb-6">
+    <div class="flex flex-col items-start gap-1">
+      <span class="font-medium">We sent a confirmation link to:</span>
+      <span class="font-bold text-lg"><%= current_unconfirmed_user&.unconfirmed_email || current_unconfirmed_user&.email %></span>
+    </div>
+  </div>
+
+  <div class="text-center mb-6">
+    <p class="text-base-content/70 mb-2">
+      Click the link in the email to activate your account.
+    </p>
+    <p class="text-base-content/50 text-sm">
+      The link expires in 24 hours.
+    </p>
+  </div>
+
+  <div class="divider text-base-content/50">Didn't receive it?</div>
+
+  <ul class="text-sm text-base-content/70 mb-4 space-y-1">
+    <li>Check your spam or junk folder</li>
+    <li>Make sure the email address is correct</li>
+    <li>Wait a few minutes and try resending</li>
+  </ul>
+
+  <%= form_with url: confirmations_path, method: :post, local: true, data: { turbo: false } do |f| %>
+    <%= render partial: "shared/auth_submit_button", locals: { text: "Resend Confirmation Email" } %>
+  <% end %>
+
+  <div class="mt-5 text-center text-sm">
+    <%= link_to "Use a different email", edit_confirmation_path(current_unconfirmed_user), class: "link link-hover text-base-content" %>
+  </div>
+<% end %>

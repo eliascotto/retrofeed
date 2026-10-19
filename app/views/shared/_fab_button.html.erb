@@ -1,0 +1,25 @@
+<div class="bottom-20 sm:bottom-4 lg:hidden fab">
+  <!-- a focusable div with tabindex is necessary to work on all browsers. role="button" is necessary for accessibility -->
+  <div tabindex="0" role="button" class="btn btn-primary btn-circle text-base">
+    <%= icon_tag "plus" %>
+  </div>
+
+  <!-- Create new List -->
+  <button
+      class="btn btn-circle bg-base-100"
+      data-controller="modal-trigger"
+      data-action="click->modal-trigger#open"
+      data-modal-trigger-event-value="openCreateList"
+  >
+    <%= icon_tag "list" %>
+  </button>
+  <!-- Add Website -->
+  <button
+      class="btn btn-circle"
+      data-controller="modal-trigger"
+      data-action="click->modal-trigger#open"
+      data-modal-trigger-event-value="openAddWebsite"
+  >
+    <%= icon_tag "globe" %>
+  </button>
+</div>

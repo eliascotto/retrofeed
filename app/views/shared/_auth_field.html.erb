@@ -1,0 +1,40 @@
+<%#
+  Usage:
+  render partial: "shared/auth_field", locals: { form: f, field: :email, label: "Email", type: :email, required: true, autofocus: true }
+  render partial: "shared/auth_field", locals: { form: f, field: :password, label: "Password", type: :password, required: true }
+  render partial: "shared/auth_field", locals: { form: f, field: :handle, label: "Handle", type: :text, required: true }
+
+  Any extra locals (placeholder, data, autocomplete, maxlength, etc.) are forwarded
+  as HTML attributes to the underlying form field.
+%>
+<% label ||= nil %>
+<% margin_bottom ||= 20 %>
+<% autofocus ||= false %>
+<% required ||= false %>
+<%
+  # Locals consumed by the partial itself; everything else is forwarded to the field.
+  consumed_locals = %i[form field label type margin_bottom autofocus required value error_message]
+  field_options = local_assigns.except(*consumed_locals).merge(
+    required: required,
+    autofocus: autofocus,
+    class: "input input-bordered w-full text-base bg-base-100 text-base-content"
+  )
+  field_options[:value] = value if local_assigns.key?(:value)
+%>
+<div class="<%= margin_bottom == 30 ? 'mb-8' : 'mb-5' %>">
+  <% if label.present? %>
+    <%= form.label field, label, class: "block mb-1 font-medium text-base-content" %>
+  <% end %>
+  <% if type == :email %>
+    <%= form.email_field field, field_options %>
+  <% elsif type == :password %>
+    <%= form.password_field field, field_options.except(:value) %>
+  <% else %>
+    <%= form.text_field field, field_options %>
+  <% end %>
+  <% if defined?(error_message) && error_message.present? %>
+    <div class="text-error mt-1 text-sm">
+      <%= error_message %>
+    </div>
+  <% end %>
+</div>

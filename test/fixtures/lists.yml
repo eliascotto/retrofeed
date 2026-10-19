@@ -1,0 +1,25 @@
+# Lists fixtures for testing
+
+read_next_list:
+  user: test_user
+  title: Read Next
+  description: Articles to read later
+  slug: read-next
+  public: false
+  public_id: abc1234
+
+user_list:
+  user: test_user
+  title: My Reading List
+  description: A collection of interesting articles
+  public: false
+  public_id: xyz7890
+
+# Admin user's Read Next list
+admin_read_next_list:
+  user: admin
+  title: Read Next
+  description: Articles to read later
+  slug: read-next
+  public: false
+  public_id: adm1234

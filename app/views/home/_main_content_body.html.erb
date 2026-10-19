@@ -1,0 +1,12 @@
+<%= render "home/articles_list", articles: defined?(articles) ? articles : @articles, tab: defined?(tab) ? tab : @tab %>
+
+<% if @total_pages && @total_pages > 1 %>
+  <div class="px-4 pb-12">
+    <%= render "shared/pagination",
+        current_page: @page,
+        total_pages: @total_pages,
+        total_count: @total_count,
+        base_params: { tab: @tab },
+        base_path: root_path %>
+  </div>
+<% end %>

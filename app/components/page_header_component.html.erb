@@ -1,0 +1,51 @@
+<header class="<%= header_classes %>">
+  <div class="<%= inner_wrapper_classes %>">
+    <div class="flex items-center gap-3">
+
+      <%# Back button %>
+      <button
+          type="button"
+          class="<%= back_button_classes %>"
+          data-controller="back-button"
+          data-back-button-fallback-value="<%= back_fallback_path %>"
+          data-action="click->back-button#navigate"
+      >
+        <%= helpers.icon_tag "arrow-left" %>
+      </button>
+
+      <% unless overlay? %>
+        <%# Favicon %>
+        <% if @favicon.present? %>
+          <%= render "shared/favicon", favicon: @favicon, use_letter_fallback: @favicon_use_letter_fallback %>
+        <% end %>
+
+        <%# Title %>
+        <div class="flex-1 min-w-0">
+          <% if @title_tag == :h1 %>
+            <h1 class="text-lg font-semibold truncate"><%= @title %></h1>
+          <% elsif @title_tag == :h2 %>
+            <h2 class="text-md text-base-content/50 font-medium truncate"><%= @title %></h2>
+          <% else %>
+            <p class="text-sm text-base-content/50 truncate"><%= @title %></p>
+          <% end %>
+          <% if @subtitle.present? %>
+            <p class="text-sm text-base-content/50 truncate"><%= @subtitle %></p>
+          <% end %>
+        </div>
+
+        <%# External link %>
+        <% if @external_link_url.present? %>
+          <%= link_to @external_link_url,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            class: "btn btn-ghost btn-sm gap-1 shrink-0 text-base-content/50 hover:text-base-content shadow-none" do
+          %>
+            <span class="hidden sm:inline text-xs font-medium"><%= @external_link_text %></span>
+            <%= helpers.icon_tag "external-link", class: "h-4 sm:h-3" %>
+          <% end %>
+        <% end %>
+      <% end %>
+
+    </div>
+  </div>
+</header>

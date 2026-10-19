@@ -1,0 +1,17 @@
+<div id="sites-empty-state" class="flex flex-col items-center justify-center px-6 py-16">
+  <div class="w-12 h-12 mb-4 rounded-full bg-base-200 flex items-center justify-center">
+    <%= icon_tag "file", class: "w-5 h-5 text-base-content/40" %>
+  </div>
+  <h3 class="text-base font-medium text-base-content mb-1">No websites yet</h3>
+  <p class="text-sm text-base-content/50 text-center max-w-xs mb-6">
+    Add websites to start reading articles.
+  </p>
+  <%= tag.button class: "btn btn-primary btn-sm gap-1",
+    data: {
+      controller: "modal-trigger",
+      action: "click->modal-trigger#open"
+    } do %>
+      <%= icon_tag "plus" %>
+      Add your first website
+  <% end %>
+</div>

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Verify Tailwind CSS setup
+
+set -e
+
+echo "🔍 Verifying Tailwind CSS setup..."
+
+# Check source file
+if [ ! -f "app/assets/stylesheets/tailwind.css" ]; then
+  echo "❌ ERROR: app/assets/stylesheets/tailwind.css not found"
+  exit 1
+fi
+
+# Compile CSS
+echo "📦 Compiling Tailwind CSS..."
+bin/rails tailwindcss:build > /dev/null 2>&1
+
+# Check compiled file
+if [ ! -f "app/assets/builds/tailwind.css" ]; then
+  echo "❌ ERROR: Compiled file not found"
+  exit 1
+fi
+
+FILE_SIZE=$(wc -c < app/assets/builds/tailwind.css | xargs)
+if [ "$FILE_SIZE" -lt 1000 ]; then
+  echo "❌ ERROR: Compiled file is too small ($FILE_SIZE bytes)"
+  exit 1
+fi
+
+echo "✅ Tailwind CSS is properly set up!"
+echo "   - Source: app/assets/stylesheets/tailwind.css"
+echo "   - Compiled: app/assets/builds/tailwind.css ($FILE_SIZE bytes)"
+echo ""
+echo "💡 If you see 404 errors in browser:"
+echo "   1. Hard refresh: Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows)"
+echo "   2. Clear browser cache"
+echo "   3. Restart server: bin/dev"
+

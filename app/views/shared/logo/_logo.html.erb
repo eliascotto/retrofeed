@@ -1,0 +1,26 @@
+<%# Retrofeed logo icon SVG component %>
+<%# Usage: render "shared/logo/logo", class: "w-8 h-8" %>
+<% logo_id = "logo-#{SecureRandom.hex(4)}" %>
+<svg class="<%= local_assigns[:class] || 'w-8 h-8' %>" viewBox="0 0 270 270" fill="none">
+  <%# Outer ring - red %>
+  <mask id="<%= logo_id %>-mask0" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="270" height="270">
+    <circle cx="0" cy="270" r="240" stroke="white" stroke-width="60"/>
+  </mask>
+  <g mask="url(#<%= logo_id %>-mask0)">
+    <rect x="0" y="0" width="270" height="270" fill="#E93633"/>
+  </g>
+  <%# Middle ring - orange %>
+  <mask id="<%= logo_id %>-mask1" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="270" height="270">
+    <circle cx="0" cy="270" r="150" stroke="white" stroke-width="60"/>
+  </mask>
+  <g mask="url(#<%= logo_id %>-mask1)">
+    <rect x="0" y="0" width="270" height="270" fill="#EE6831"/>
+  </g>
+  <%# Inner circle - yellow/gold %>
+  <mask id="<%= logo_id %>-mask2" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="270" height="270">
+    <circle cx="0" cy="270" r="90" fill="white"/>
+  </mask>
+  <g mask="url(#<%= logo_id %>-mask2)">
+    <rect x="0" y="0" width="270" height="270" fill="#EA9F1A"/>
+  </g>
+</svg>

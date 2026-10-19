@@ -1,0 +1,9 @@
+<%= turbo_frame_tag "task-output" do %>
+  <% if @error.present? %>
+    <div class="mb-2 px-3 py-2 rounded bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 text-sm">
+      <%= @error %>
+    </div>
+  <% end %>
+  <pre class="bg-black text-green-300 text-xs p-4 rounded overflow-auto max-h-96 whitespace-pre-wrap"
+       data-testid="task-output"><%= @output.presence || "(no output)" %></pre>
+<% end %>

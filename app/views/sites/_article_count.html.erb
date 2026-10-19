@@ -1,0 +1,21 @@
+<div id="article-count-<%= website.id %>" class="text-xs text-base-content/40 tabular-nums shrink-0 flex items-center gap-1">
+    <!-- Updates dot -->
+    <% if new_count > 0 %>
+      <div
+        data-controller="tooltip"
+        data-tooltip-placement-value="bottom"
+        class="flex item-center justify-center"
+      >
+        <%= icon_tag "dot", class: "text-primary text-2xl h-3 shrink-0" %>
+        <div data-tooltip-target="tooltip" style="display:none" class="tooltip tooltip--sm">
+          <%= new_count %> new articles
+        </div>
+      </div>
+    <% end %>
+
+    <%= total_count %>
+
+    <% if progress[:has_errors] && progress[:failed] > 0 && user.admin? %>
+        <span class="text-warning" title="<%= progress[:failed] %> articles failed">!</span>
+    <% end %>
+</div>

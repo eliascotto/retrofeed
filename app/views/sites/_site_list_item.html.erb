@@ -1,0 +1,56 @@
+<div id="<%= dom_id(website) %>"
+     class="flex items-center gap-2 px-3 py-2 rounded hover:bg-base-200 transition-colors group"
+     data-website-id="<%= website.id %>"
+     data-site-processing="<%= progress[:is_processing] %>">
+  <%= link_to site_path(website),
+    class: "flex-1 flex items-center gap-3 min-w-0 cursor-default",
+    data: { turbo_frame: "_top", turbo_prefetch: false } do %>
+    <div class="flex-1 min-w-0 flex flex-row items-center justify-start gap-4">
+
+      <!-- Favicon -->
+      <% use_letter_fallback = website.favicon.attached? ? false : true %>
+      <% favicon = website.favicon.attached? ? url_for(website.favicon) : (website.name.presence || website.domain) %>
+      <%= render "shared/favicon", favicon: favicon, use_letter_fallback: use_letter_fallback %>
+
+      <!-- Website Name and Domain -->
+      <div class="min-w-0 flex flex-col">
+        <span class="text-sm font-medium truncate block group-hover:text-primary"><%= website.name.presence || website.domain %></span>
+        <span class="text-xs text-base-content/40 truncate block"><%= website.domain %></span>
+      </div>
+
+      <!-- Progress Indicator -->
+      <div class="shrink-0 color-primary fill-primary mt-1 self-start"
+          data-progress-container
+          title="<%= progress[:percentage] %>% processed">
+          <% if progress[:is_processing] %>
+            <%= render "shared/circular_progress", percentage: progress[:percentage], size: 14, stroke_width: 1.5, class: "shrink-0" %>
+          <% end %>
+      </div>
+    </div>
+
+    <%= render "sites/article_count", website:, total_count:, new_count:, progress:, user: %>
+  <% end %>
+
+  <!-- Dropdown menu -->
+  <%= render "shared/dropdown",
+    dropdown_classes: "dropdown-end",
+    summary_classes: "btn btn-ghost btn-xs btn-square text-base-content/60 hover:text-base-content text-base shadow-none",
+    summary: icon_tag("ellipsis", class: "w-4 h-4") do %>
+    <ul class="dropdown-content menu bg-base-200 dark:bg-base-100 rounded-lg shadow-lg border border-base-200 p-1 w-36 text-sm">
+      <li>
+        <button
+            class="flex flex-row justify-between items-center text-base-content/60 hover:text-base-content"
+            data-controller="modal-trigger"
+            data-action="click->modal-trigger#open"
+            data-modal-trigger-event-value="openRemoveWebsite"
+            data-modal-trigger-id-param="<%= website.id %>"
+            data-modal-trigger-name-param="<%= j(website.name.presence || website.domain) %>"
+            data-modal-trigger-path-param="<%= site_subscription_path(website) %>"
+        >
+          Remove
+          <%= icon_tag "trash", class: "w-4 h-4" %>
+        </button>
+      </li>
+    </ul>
+  <% end %>
+</div>

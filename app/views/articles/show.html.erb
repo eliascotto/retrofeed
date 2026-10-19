@@ -1,0 +1,157 @@
+<%# Article view controller tracks when user actually views this article.
+    It fires on connect (when page renders), not during Turbo prefetch.
+    See: docs/adr_turbo_prefetch_view_tracking.md %>
+<%# Reading settings (font size, family, width) are applied via JS from localStorage %>
+<div class="min-h-screen bg-base-100"
+     data-controller="article-view"
+     data-article-view-article-id-value="<%= @article.id %>"
+     data-article-view-url-value="<%= track_view_api_article_path(@article) %>">
+
+  <!-- Shared width wrapper: header and content share the same reading width -->
+  <div class="max-w-2xl mx-auto px-4" data-reading-settings-target="article">
+
+    <!-- Header -->
+    <%= render PageHeaderComponent.new(
+        back_path: site_path(@website),
+        title: @website.name.presence || @website.domain,
+        title_tag: :h2,
+        external_link_url: @article.url,
+        external_link_text: "Original",
+        constrain_width: false
+    ) %>
+
+    <!-- Article Content -->
+    <main class="py-6">
+      <article>
+
+      <!-- Title -->
+      <h1 class="text-xl sm:text-2xl font-semibold mb-3"><%= @article.title.presence || "Untitled" %></h1>
+
+      <!-- Meta -->
+      <div class="flex flex-wrap items-center justify-between gap-3 text-xs text-base-content/50 mb-6 pb-6 border-b border-base-200">
+        <div class="flex flex-wrap items-center gap-3">
+          <% if @article.publication_date %>
+            <span><%= @article.publication_date.strftime("%b %d, %Y") %></span>
+          <% end %>
+          <% if @article.word_count && @article.word_count > 0 %>
+            <span><%= number_with_delimiter(@article.word_count) %> words</span>
+            <span><%= (@article.word_count / 200.0).ceil %> min read</span>
+          <% end %>
+        </div>
+
+        <div class="flex items-center gap-1">
+          <!-- Reading settings dropdown -->
+          <%= render "shared/reading_settings_dropdown" %>
+
+          <!-- Context menu dropdown -->
+          <%= render DropdownComponent.new(position: "bottom-left") do |dropdown| %>
+            <% if @article.read_by?(current_user) %>
+              <% dropdown.with_item(
+                label: "Mark as unread",
+                icon: "x",
+                href: "#",
+                data: {
+                  controller: "user-article",
+                  user_article_article_id_value: @article.id,
+                  action: "click->user-article#markUnread"
+                }
+              ) %>
+            <% else %>
+              <% dropdown.with_item(
+                label: "Mark as read",
+                icon: "check",
+                href: "#",
+                data: {
+                  controller: "user-article",
+                  user_article_article_id_value: @article.id,
+                  action: "click->user-article#markRead"
+                }
+              ) %>
+            <% end %>
+
+            <% dropdown.with_item(
+              label: "Go to website",
+              icon: "globe",
+              href: site_path(@website)
+            ) %>
+
+            <% if current_user.admin? %>
+              <% dropdown.with_item(
+                label: "Refresh article",
+                icon: "refresh-cw",
+                href: "#",
+                data: {
+                  controller: "refresh",
+                  refresh_url_value: refresh_api_article_path(@article),
+                  refresh_csrf_token_value: form_authenticity_token,
+                  action: "click->refresh#refresh"
+                }
+              ) %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Content MD -->
+      <% if @article.content_md.present? %>
+        <div class="prose prose-base font-sans max-w-none" data-reading-settings-target="content">
+          <%= render_markdown(@article.content_md) %>
+        </div>
+      <!-- Content HTML -->
+      <% elsif @article.content_html.present? %>
+        <div class="prose prose-base font-sans max-w-none" data-reading-settings-target="content">
+          <%= sanitize_article_html @article.content_html %>
+        </div>
+      <!-- No content available -->
+      <% else %>
+        <div class="flex flex-col items-center justify-center py-12">
+          <div class="w-12 h-12 mb-4 rounded-full bg-base-200 flex items-center justify-center">
+            <%= icon_tag "file", class: "w-5 h-5 text-base-content/40" %>
+          </div>
+          <p class="text-sm text-base-content/50 mb-4">No content available</p>
+          <% if @article.url.present? %>
+            <a href="<%= @article.url %>" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+              <%= icon_tag "external-link" %>
+              Read original
+            </a>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%# Footer %>
+      <div class="mt-8 mb-20 pt-8 border-t border-base-200 dark:border-base-300">
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap justify-center gap-2">
+          <% unless @article.read_by?(current_user) %>
+            <%= form_with url: mark_read_user_article_path(@article), method: :post, local: true, class: "inline" do %>
+              <button type="submit" class="btn">
+                <%= icon_tag "check" %>
+                Mark as read
+              </button>
+            <% end %>
+          <% end %>
+
+          <%= form_with url: random_article_path(@article), method: :post, local: true, class: "inline" do %>
+            <button type="submit" class="btn">
+              <%= icon_tag "dices" %>
+              Random
+            </button>
+          <% end %>
+
+          <%= form_with url: next_article_path(@article), method: :post, local: true, class: "inline" do %>
+            <button type="submit" class="btn">
+              <%= icon_tag "arrow-right" %>
+              Next
+            </button>
+          <% end %>
+        </div>
+
+        <div class="text-center text-sm text-base-content/50 mt-4">
+          <%= link_to "#{@website.domain}", site_url(@website), class: "text-base-content/50 hover:text-base-content" %>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  </div>
+</div>

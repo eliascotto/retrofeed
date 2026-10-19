@@ -1,0 +1,705 @@
+<%# Playground Results - Display archive detection and article extraction results %>
+<div class="min-h-screen bg-base-200 p-4 sm:p-8">
+  <div class="max-w-4xl mx-auto">
+    <%# Header with back link %>
+    <div class="mb-6">
+      <a href="<%= playground_path %>" class="btn btn-ghost btn-sm gap-1 mb-4">
+        <%= icon_tag "arrow-left", class: "w-4 h-4" %>
+        Back
+      </a>
+      <h1 class="text-2xl font-bold">Results for <%= @url %></h1>
+
+      <%# Shareable URL %>
+      <button type="button" class="btn btn-ghost btn-xs"
+              data-controller="clipboard"
+              data-clipboard-text-value="<%= request.url %>"
+              data-clipboard-feedback-text-value="Copied!"
+              data-action="click->clipboard#copy">
+        <span data-clipboard-target="feedback">Copy</span>
+      </button>
+      </div>
+
+
+    <%# Errors Section %>
+    <% if @results[:errors].any? %>
+      <div class="alert alert-error mb-6">
+        <div>
+          <h3 class="font-bold">Errors encountered:</h3>
+          <ul class="list-disc list-inside mt-2">
+            <% @results[:errors].each do |error| %>
+              <li>
+                <span class="font-medium"><%= error[:type] %>:</span>
+                <%= error[:message] %>
+                <% if error[:http_status] %>
+                  <span class="badge badge-error badge-sm ml-1">HTTP <%= error[:http_status] %></span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Validation Verdict %>
+    <% if @results[:validation_verdict] %>
+      <% verdict = @results[:validation_verdict] %>
+      <div class="card bg-base-100 shadow-sm mb-6">
+        <div class="card-body">
+          <h2 class="card-title text-lg">
+            Archive Validation
+            <% if verdict.valid? %>
+              <span class="badge badge-success">valid</span>
+            <% else %>
+              <span class="badge badge-error">rejected</span>
+            <% end %>
+          </h2>
+          <p class="text-sm text-base-content/70">
+            A page is a valid archive when any check below reaches the
+            <strong><%= verdict.min_links %></strong> link threshold.
+            URL: <span class="break-all"><%= verdict.base_url %></span>
+          </p>
+
+          <div class="overflow-x-auto mt-2">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Check</th>
+                  <th class="text-right">Count</th>
+                  <th class="text-right">Threshold</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Local links</th>
+                  <td class="text-right"><%= verdict.local_links_count %></td>
+                  <td class="text-right text-base-content/50">-</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <th>Candidate paths</th>
+                  <td class="text-right"><%= verdict.candidate_paths_count %></td>
+                  <td class="text-right text-base-content/50">-</td>
+                  <td></td>
+                </tr>
+                <tr class="<%= "bg-success/10" if verdict.passed_check == :article_like %>">
+                  <th>Article-like paths</th>
+                  <td class="text-right"><%= verdict.article_like_count %></td>
+                  <td class="text-right"><%= verdict.min_links %></td>
+                  <td>
+                    <% if verdict.passed_check == :article_like %>
+                      <span class="badge badge-success badge-sm">passed</span>
+                    <% end %>
+                  </td>
+                </tr>
+                <tr class="<%= "bg-success/10" if verdict.passed_check == :date_paths %>">
+                  <th>Date-based paths</th>
+                  <td class="text-right"><%= verdict.date_paths_count %></td>
+                  <td class="text-right"><%= verdict.min_links %></td>
+                  <td>
+                    <% if verdict.passed_check == :date_paths %>
+                      <span class="badge badge-success badge-sm">passed</span>
+                    <% end %>
+                  </td>
+                </tr>
+                <tr class="<%= "bg-success/10" if verdict.passed_check == :pattern %>">
+                  <th>
+                    Top directory pattern
+                    <% if verdict.top_pattern %>
+                      <code class="text-xs bg-base-300 px-1 rounded"><%= verdict.top_pattern %></code>
+                    <% end %>
+                  </th>
+                  <td class="text-right"><%= verdict.top_pattern_count %></td>
+                  <td class="text-right"><%= verdict.min_links %></td>
+                  <td>
+                    <% if verdict.passed_check == :pattern %>
+                      <span class="badge badge-success badge-sm">passed</span>
+                    <% end %>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Archive Detection Results %>
+    <% if @results[:archive] %>
+      <div class="card bg-base-100 shadow-sm mb-6">
+        <div class="card-body">
+          <h2 class="card-title text-lg">Archive Detection</h2>
+
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <tbody>
+                <tr>
+                  <th class="w-40">Archive URL</th>
+                  <td>
+                    <a href="<%= @results[:archive][:url] %>" target="_blank" class="link link-primary break-all">
+                      <%= @results[:archive][:url] %>
+                    </a>
+                  </td>
+                </tr>
+                <% if @results[:archive][:detector] %>
+                  <tr>
+                    <th>Detector</th>
+                    <td>
+                      <% if @results[:archive][:detector] == "Default" %>
+                        <span class="badge badge-ghost">Default</span>
+                      <% else %>
+                        <span class="badge badge-primary"><%= @results[:archive][:detector] %></span>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+                <tr>
+                  <th>Detection Method</th>
+                  <td>
+                    <span class="badge badge-neutral"><%= @results[:archive][:method] %></span>
+                  </td>
+                </tr>
+                <% if @results[:archive][:strategy] %>
+                  <tr>
+                    <th>Extraction Strategy</th>
+                    <td>
+                      <span class="badge badge-neutral"><%= @results[:archive][:strategy] %></span>
+                    </td>
+                  </tr>
+                <% end %>
+                <tr>
+                  <th>Confidence Score</th>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <% score_pct = (@results[:archive][:confidence_score] * 100).to_i %>
+                      <% progress_class = if score_pct >= 80
+                                            "progress-success"
+                                          elsif score_pct >= 50
+                                            "progress-warning"
+                                          else
+                                            "progress-error"
+                                          end %>
+                      <progress class="progress <%= progress_class %> w-24" value="<%= score_pct %>" max="100"></progress>
+                      <span class="font-medium"><%= score_pct %>%</span>
+                    </div>
+                  </td>
+                </tr>
+                <% if @results[:archive][:method] == "infinite_scroll" %>
+                  <tr>
+                    <th>Scroll Count</th>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium"><%= @results[:archive][:scroll_count] %></span>
+                        <span class="text-base-content/50">/ <%= @results[:archive][:max_scrolls] %> max</span>
+                        <% if @results[:infinite_scroll] && @results[:infinite_scroll][:reached_limit] %>
+                          <span class="badge badge-warning badge-sm">Limit reached</span>
+                        <% end %>
+                      </div>
+                    </td>
+                  </tr>
+                <% else %>
+                  <tr>
+                    <th>Pagination Detected</th>
+                    <td>
+                      <% if @results[:archive][:pagination_detected] %>
+                        <span class="badge badge-success">Yes</span>
+                      <% else %>
+                        <span class="badge badge-ghost">No</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+                <% if @results[:archive][:notes] %>
+                  <tr>
+                    <th>Notes</th>
+                    <td class="text-base-content/70"><%= @results[:archive][:notes] %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <%# Article Validation Results %>
+          <% if @results[:archive][:validation] %>
+            <% validation = @results[:archive][:validation] %>
+            <div class="mt-4 p-4 bg-base-200 rounded-lg">
+              <h3 class="font-semibold mb-3">Article Domain Analysis</h3>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                <div class="stat bg-base-100 rounded-lg p-3">
+                  <div class="stat-title text-xs">Total Articles</div>
+                  <div class="stat-value text-lg"><%= validation[:total] %></div>
+                </div>
+                <div class="stat bg-base-100 rounded-lg p-3">
+                  <div class="stat-title text-xs">Internal</div>
+                  <div class="stat-value text-lg text-success"><%= validation[:internal] %></div>
+                </div>
+                <div class="stat bg-base-100 rounded-lg p-3">
+                  <div class="stat-title text-xs">External</div>
+                  <div class="stat-value text-lg text-error"><%= validation[:external] %></div>
+                </div>
+                <div class="stat bg-base-100 rounded-lg p-3">
+                  <div class="stat-title text-xs">Match Rate</div>
+                  <% match_pct = (validation[:match_percentage] * 100).round %>
+                  <div class="stat-value text-lg <%= match_pct >= 80 ? 'text-success' : match_pct >= 50 ? 'text-warning' : 'text-error' %>">
+                    <%= match_pct %>%
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+          <%# Confidence Score Breakdown %>
+          <% if @results[:archive][:score_breakdown] %>
+            <% breakdown = @results[:archive][:score_breakdown] %>
+            <div class="mt-4 p-4 bg-base-200 rounded-lg">
+              <h3 class="font-semibold mb-3">Confidence Score Breakdown</h3>
+              <div class="text-sm space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="text-base-content/70">Base score (<%= breakdown[:base_reason] %>)</span>
+                  <span class="font-mono"><%= (breakdown[:base_score] * 100).to_i %>%</span>
+                </div>
+                <% breakdown[:adjustments].each do |adj| %>
+                  <div class="flex justify-between items-center">
+                    <span class="text-base-content/70"><%= adj[:factor] %></span>
+                    <span class="font-mono <%= adj[:impact] >= 0 ? 'text-success' : 'text-error' %>">
+                      <%= adj[:impact] >= 0 ? '+' : '' %><%= (adj[:impact] * 100).round %>%
+                    </span>
+                  </div>
+                <% end %>
+                <div class="divider my-1"></div>
+                <div class="flex justify-between items-center font-semibold">
+                  <span>Final score</span>
+                  <span class="font-mono"><%= (breakdown[:final_score] * 100).to_i %>%</span>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Pages Fetched %>
+    <% if @results[:pages].any? %>
+      <div class="card bg-base-100 shadow-sm mb-6">
+        <div class="card-body">
+          <h2 class="card-title text-lg">Pages Fetched (<%= @results[:pages].count %>)</h2>
+
+          <div class="overflow-x-auto">
+            <table class="table table-sm" id="pages-fetched-table">
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>URL</th>
+                  <th>Source</th>
+                  <th>Size</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @results[:pages].each_with_index do |page, index| %>
+                  <tr>
+                    <td>
+                      <% case page[:role]
+                         when "archive" %>
+                        <span class="badge badge-primary badge-sm">archive</span>
+                      <% when "pagination" %>
+                        <span class="badge badge-secondary badge-sm">page <%= page[:page_number] || index + 1 %></span>
+                      <% else %>
+                        <span class="badge badge-ghost badge-sm">probe</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <a href="<%= page[:url] %>" target="_blank" class="link link-primary text-sm break-all">
+                        <%= truncate(page[:url], length: 60) %>
+                      </a>
+                    </td>
+                    <td>
+                      <% if page[:source] == :fixture %>
+                        <span class="badge badge-info badge-sm">Cached</span>
+                        <% if page[:fetched_at] %>
+                          <span class="text-xs text-base-content/50 ml-1">
+                            <%= time_ago_in_words(Time.parse(page[:fetched_at])) rescue page[:fetched_at] %> ago
+                          </span>
+                        <% end %>
+                      <% else %>
+                        <span class="badge badge-success badge-sm">Live</span>
+                      <% end %>
+                      <% if page[:fetcher_type] && page[:fetcher_type] != "live" %>
+                        <span class="badge badge-ghost badge-sm ml-1"><%= page[:fetcher_type] %></span>
+                      <% end %>
+                      <% if page[:scroll_count] %>
+                        <span class="badge badge-ghost badge-sm ml-1"><%= page[:scroll_count] %> scrolls</span>
+                      <% end %>
+                    </td>
+                    <td class="text-sm text-base-content/70">
+                      <%= number_to_human_size(page[:size]) %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <%# Pagination Summary %>
+          <% if @results[:pagination] %>
+            <div class="mt-4 p-3 bg-base-200 rounded-lg text-sm">
+              <div class="flex flex-wrap gap-4">
+                <span><strong>Pages fetched:</strong> <%= @results[:pagination][:pages_fetched] %></span>
+                <span><strong>Limit:</strong> <%= @results[:pagination][:max_pages] %></span>
+                <% if @results[:pagination][:reached_limit] %>
+                  <span class="badge badge-warning">Limit reached</span>
+                <% end %>
+                <% if @results[:pagination][:has_more] %>
+                  <span class="badge badge-info">More pages available</span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
+          <%# Infinite Scroll Summary %>
+          <% if @results[:infinite_scroll] %>
+            <div class="mt-4 p-3 bg-base-200 rounded-lg text-sm">
+              <div class="flex flex-wrap gap-4">
+                <span><strong>Scrolls performed:</strong> <%= @results[:infinite_scroll][:scroll_count] %></span>
+                <span><strong>Max scrolls:</strong> <%= @results[:infinite_scroll][:max_scrolls] %></span>
+                <% if @results[:infinite_scroll][:reached_limit] %>
+                  <span class="badge badge-warning">Limit reached</span>
+                <% else %>
+                  <span class="badge badge-success">Content fully loaded</span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Detection Trace: why each strategy accepted or rejected a candidate %>
+    <% if @results[:detection_trace]&.any? %>
+      <div class="card bg-base-100 shadow-sm mb-6">
+        <div class="card-body">
+          <h2 class="card-title text-lg">Detection Trace (<%= @results[:detection_trace].count %>)</h2>
+
+          <div class="overflow-x-auto">
+            <table class="table table-sm" id="detection-trace-table">
+              <thead>
+                <tr>
+                  <th>Strategy</th>
+                  <th>Candidate URL</th>
+                  <th>Decision</th>
+                  <th>Reason</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @results[:detection_trace].each do |entry| %>
+                  <tr>
+                    <td class="text-sm">
+                      <span class="badge badge-ghost badge-sm"><%= entry[:strategy] %></span>
+                    </td>
+                    <td>
+                      <a href="<%= entry[:candidate_url] %>" target="_blank" class="link link-primary text-sm break-all">
+                        <%= truncate(entry[:candidate_url], length: 60) %>
+                      </a>
+                    </td>
+                    <td>
+                      <% if entry[:accepted] %>
+                        <span class="badge badge-success badge-sm">accepted</span>
+                      <% else %>
+                        <span class="badge badge-ghost badge-sm">rejected</span>
+                      <% end %>
+                    </td>
+                    <td class="text-sm text-base-content/70"><%= entry[:reason] %></td>
+                    <td class="text-sm text-base-content/70">
+                      <%= entry[:score] ? entry[:score].round(2) : "-" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Articles Found %>
+    <div class="card bg-base-100 shadow-sm mb-6">
+      <div class="card-body">
+        <h2 class="card-title text-lg">Articles Found (<%= @results[:articles].count %>)</h2>
+
+        <% if @results[:articles].any? %>
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Domain</th>
+                  <th>Date</th>
+                  <th>Page</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @results[:articles].each do |article| %>
+                  <tr class="<%= article[:is_internal] ? '' : 'bg-error/10' %>">
+                    <td>
+                      <a href="<%= article[:url] %>" target="_blank" class="link <%= article[:is_internal] ? 'link-primary' : 'link-error' %>">
+                        <%= article[:title].presence || "(No title)" %>
+                      </a>
+                    </td>
+                    <td>
+                      <% if article[:is_internal] %>
+                        <span class="badge badge-success badge-sm">Internal</span>
+                      <% else %>
+                        <span class="badge badge-error badge-sm" title="<%= article[:domain] %>">External</span>
+                      <% end %>
+                    </td>
+                    <td class="text-sm text-base-content/70">
+                      <%= article[:date].presence || "-" %>
+                    </td>
+                    <td>
+                      <span class="badge badge-ghost badge-sm"><%= article[:page] %></span>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <p class="text-base-content/70">No articles were found on this page.</p>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Extraction Debug (collapsible) %>
+    <% if @results[:extraction_debug] %>
+      <% debug = @results[:extraction_debug] %>
+      <div class="card bg-base-100 shadow-sm mb-6">
+        <div class="card-body">
+          <details class="collapse collapse-arrow bg-base-200 rounded-lg">
+            <summary class="collapse-title font-medium cursor-pointer">
+              Extraction Debug
+              <span class="badge badge-neutral badge-sm ml-2">
+                Phase <%= debug.phase || "N/A" %>
+              </span>
+            </summary>
+            <div class="collapse-content">
+              <%# Summary %>
+              <div class="overflow-x-auto mt-4">
+                <table class="table table-sm">
+                  <tbody>
+                    <tr>
+                      <th class="w-40">Strategy</th>
+                      <td><span class="badge badge-neutral"><%= debug.strategy %></span></td>
+                    </tr>
+                    <tr>
+                      <th>Phase</th>
+                      <td><%= debug.phase || "N/A" %></td>
+                    </tr>
+                    <% if debug.phase_detail %>
+                      <tr>
+                        <th>Phase Detail</th>
+                        <td><code class="text-sm bg-base-300 px-1 rounded"><%= debug.phase_detail %></code></td>
+                      </tr>
+                    <% end %>
+                    <tr>
+                      <th>Base URL</th>
+                      <td class="break-all"><%= debug.base_url %></td>
+                    </tr>
+                    <tr>
+                      <th>Base Path</th>
+                      <td><code class="text-sm bg-base-300 px-1 rounded"><%= debug.base_path %></code></td>
+                    </tr>
+                    <% if debug.final_url && debug.final_url != debug.base_url %>
+                      <tr>
+                        <th>Final URL (redirect)</th>
+                        <td class="break-all text-warning"><%= debug.final_url %></td>
+                      </tr>
+                    <% end %>
+                    <% if debug.containers_count %>
+                      <tr>
+                        <th>Containers Found</th>
+                        <td><%= debug.containers_count %></td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+
+              <%# Phase Comparison (what-if): each hybrid phase's would-be result count %>
+              <% if debug.phase_results&.any? %>
+                <div class="mt-4">
+                  <h4 class="font-semibold mb-2">Phase Comparison</h4>
+                  <p class="text-sm text-base-content/70 mb-2">
+                    What each hybrid phase would have produced. The chosen phase is the
+                    first one to yield enough containers; later phases are shown for comparison.
+                  </p>
+                  <div class="overflow-x-auto">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Phase</th>
+                          <th>Detail</th>
+                          <th>Containers</th>
+                          <th>Articles</th>
+                          <th>Chosen</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% debug.phase_results.each do |phase_result| %>
+                          <tr class="<%= phase_result[:chosen] ? '' : 'opacity-60' %>">
+                            <td><code class="text-xs"><%= phase_result[:phase] %></code></td>
+                            <td class="break-all max-w-xs">
+                              <% if phase_result[:detail].present? %>
+                                <code class="text-xs bg-base-300 px-1 rounded"><%= phase_result[:detail] %></code>
+                              <% else %>
+                                <span class="text-base-content/50">-</span>
+                              <% end %>
+                            </td>
+                            <td><%= phase_result[:containers] || "-" %></td>
+                            <td><%= phase_result[:articles] %></td>
+                            <td>
+                              <% if phase_result[:chosen] %>
+                                <span class="badge badge-success badge-xs">Yes</span>
+                              <% else %>
+                                <span class="badge badge-ghost badge-xs">No</span>
+                              <% end %>
+                            </td>
+                          </tr>
+                        <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              <% end %>
+
+              <%# Container Candidates: the containers ArchiveContainerExtractor considered %>
+              <% if debug.container_candidates&.any? %>
+                <div class="mt-4">
+                  <h4 class="font-semibold mb-2">Container Candidates</h4>
+                  <p class="text-sm text-base-content/70 mb-2">
+                    Containers considered to scope the search, with their link counts.
+                    The chosen container is the first one with enough links.
+                  </p>
+                  <div class="overflow-x-auto">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Selector</th>
+                          <th>Links</th>
+                          <th>Source</th>
+                          <th>Chosen</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% debug.container_candidates.each do |candidate| %>
+                          <tr class="<%= candidate[:chosen] ? '' : 'opacity-60' %>">
+                            <td class="break-all max-w-xs">
+                              <code class="text-xs bg-base-300 px-1 rounded"><%= candidate[:selector] %></code>
+                            </td>
+                            <td><%= candidate[:link_count] %></td>
+                            <td><span class="badge badge-neutral badge-xs"><%= candidate[:source] %></span></td>
+                            <td>
+                              <% if candidate[:chosen] %>
+                                <span class="badge badge-success badge-xs">Yes</span>
+                              <% else %>
+                                <span class="badge badge-ghost badge-xs">No</span>
+                              <% end %>
+                            </td>
+                          </tr>
+                        <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              <% end %>
+
+              <%# Dropped URLs %>
+              <% if debug.dropped_urls&.any? %>
+                <div class="mt-4">
+                  <h4 class="font-semibold mb-2 text-warning">Dropped URLs (<%= debug.dropped_urls.length %>)</h4>
+                  <p class="text-sm text-base-content/70 mb-2">
+                    These URLs were identified as article-like but not included in the final list
+                    (likely in a different container group or excluded by container selection).
+                  </p>
+                  <ul class="list-disc list-inside text-sm max-h-40 overflow-y-auto bg-base-200 p-2 rounded">
+                    <% debug.dropped_urls.first(20).each do |url| %>
+                      <li class="break-all"><%= url %></li>
+                    <% end %>
+                    <% if debug.dropped_urls.length > 20 %>
+                      <li class="text-base-content/50">... and <%= debug.dropped_urls.length - 20 %> more</li>
+                    <% end %>
+                  </ul>
+                </div>
+              <% end %>
+
+              <%# Link Candidates Table %>
+              <% if debug.article_like_links&.any? %>
+                <div class="mt-4">
+                  <h4 class="font-semibold mb-2">Link Candidates (<%= debug.article_like_links.length %>)</h4>
+                  <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                    <table class="table table-xs">
+                      <thead class="sticky top-0 bg-base-100 opacity-100">
+                        <tr>
+                          <th>Path</th>
+                          <th>Included</th>
+                          <th>Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <%# Sort: excluded first, then included %>
+                        <% sorted_links = debug.article_like_links.sort_by { |l| l[:included] ? 1 : 0 } %>
+                        <% sorted_links.first(100).each do |link_info| %>
+                          <tr class="<%= link_info[:included] ? '' : 'opacity-60' %>">
+                            <td class="break-all max-w-xs">
+                              <code class="text-xs"><%= link_info[:path] || link_info[:href] %></code>
+                            </td>
+                            <td>
+                              <% if link_info[:included] %>
+                                <span class="badge badge-success badge-xs">Yes</span>
+                              <% else %>
+                                <span class="badge badge-ghost badge-xs">No</span>
+                              <% end %>
+                            </td>
+                            <td>
+                              <span class="text-xs <%= link_info[:included] ? 'text-success' : 'text-base-content/50' %>">
+                                <%= link_info[:reason] %>
+                              </span>
+                            </td>
+                          </tr>
+                        <% end %>
+                        <% if debug.article_like_links.length > 100 %>
+                          <tr>
+                            <td colspan="3" class="text-center text-base-content/50">
+                              ... and <%= debug.article_like_links.length - 100 %> more links
+                            </td>
+                          </tr>
+                        <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </details>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Actions %>
+    <div class="flex flex-wrap gap-2 justify-end">
+      <a href="<%= playground_path %>" class="btn btn-primary">
+        Test Another URL
+      </a>
+      <a href="<%= playground_fixtures_path %>" class="btn btn-ghost">
+        Manage Fixtures
+      </a>
+      <% if @results[:archive] %>
+        <%= button_to playground_fixtures_path(url: @results[:archive][:url]),
+            method: :delete,
+            class: "btn btn-ghost btn-error",
+            data: { confirm: "Clear cached fixtures for this URL?" } do %>
+          Clear Cache
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

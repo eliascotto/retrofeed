@@ -1,0 +1,19 @@
+<!-- Form -->
+<%= form_with url: sites_path, scope: :site, data: { turbo_frame: "_top" } do |f| %>
+  <%= f.url_field :url,
+    required: true,
+    autofocus: true,
+    placeholder: "https://example.com",
+    class: "input w-full outline-none focus:border-primary bg-base-200",
+    data: { add_site_modal_target: "urlInput" } %>
+
+  <% if error.present? %>
+    <p data-add-site-modal-target="urlError" class="text-error text-sm">
+      <%= error %>
+    </p>
+  <% end %>
+
+  <div class="mt-4">
+    <button type="submit" class="btn bg-primary w-full">Add Website</button>
+  </div>
+<% end %>

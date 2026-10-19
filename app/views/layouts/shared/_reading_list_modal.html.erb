@@ -1,0 +1,137 @@
+<%# Create/Edit Reading List Modal using DaisyUI dialog and a Turbo form_with %>
+<%# The edit modal is rendered once with edit_mode: true and no list. The form
+    action and field values are filled in by the reading-list-modal Stimulus controller
+    from the clicked "Edit" trigger's data params. %>
+<%
+  list = local_assigns[:list]
+  edit_mode = local_assigns.fetch(:edit_mode, list.present?)
+  list ||= List.new
+  show_cover_upload = local_assigns.fetch(:show_cover_upload, true)
+  current_cover_url = list.persisted? && list.cover_image.attached? ? url_for(list.cover_image) : nil
+%>
+<dialog
+  id="<%= edit_mode ? "edit-list-modal" : "create-list-modal" %>"
+  class="modal"
+  data-controller="reading-list-modal"
+  data-action="modal:openCreateList@window->reading-list-modal#openCreateFromEvent
+               modal:openEditList@window->reading-list-modal#openEditFromEvent
+               turbo:submit-end->reading-list-modal#submitEnd"
+  data-reading-list-modal-edit-mode-value="<%= edit_mode %>"
+>
+  <div class="modal-box">
+    <!-- Header with close button -->
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="font-bold text-lg">
+        <%= edit_mode ? "Edit Reading List" : "Create Reading List" %>
+      </h3>
+      <form method="dialog">
+        <button
+          class="btn btn-sm btn-circle btn-ghost shadow-none text-base text-base-content/50 hover:text-white"
+          data-action="click->reading-list-modal#close">
+          <%= icon_tag "x", class: "w-5 h-5" %>
+        </button>
+      </form>
+    </div>
+
+    <!-- Form -->
+    <%# In edit mode the action is a placeholder; the controller rewrites it to
+        the target list path from the trigger before submit. %>
+    <%= form_with model: list,
+                  url: edit_mode ? "#" : lists_path,
+                  method: edit_mode ? :patch : :post,
+                  class: "space-y-4",
+                  data: { reading_list_modal_target: "form" } do |f| %>
+      <fieldset class="fieldset gap-2">
+
+        <% if show_cover_upload %>
+          <!-- Cover Upload -->
+          <label class="label">
+            Cover
+          </label>
+          <div class="relative w-20 h-20 mb-2">
+            <!-- Cover preview container -->
+            <div
+              data-reading-list-modal-target="coverPreview"
+              class="w-20 h-20 rounded-xl bg-primary flex items-center justify-center overflow-hidden cursor-pointer"
+              data-action="click->reading-list-modal#triggerCoverUpload"
+            >
+              <!-- Default placeholder icon (hidden if cover exists in edit mode) -->
+              <div data-reading-list-modal-target="coverPlaceholder" class="text-primary-content <%= "hidden" if current_cover_url %>">
+                <%= icon_tag "bookmark", class: "icon icon--xl" %>
+              </div>
+              <!-- Image preview (shown if cover exists in edit mode) -->
+              <img
+                data-reading-list-modal-target="coverImage"
+                class="w-full h-full object-cover <%= "hidden" unless current_cover_url %>"
+                alt="Cover preview"
+                <% if current_cover_url %>src="<%= current_cover_url %>"<% end %>
+              >
+            </div>
+            <!-- Camera button overlay -->
+            <button
+              type="button"
+              class="absolute -bottom-1 -right-1 w-8 h-8 bg-base-100 dark:bg-base-300 rounded-full flex items-center justify-center shadow-md border border-base-200 cursor-pointer hover:bg-gray-700 transition-colors"
+              data-action="click->reading-list-modal#triggerCoverUpload"
+              title="Upload cover image"
+            >
+              <%= icon_tag "camera", class: "icon icon--md" %>
+            </button>
+            <!-- Hidden file input -->
+            <%= f.file_field :cover_image,
+                  accept: List::COVER_IMAGE_CONTENT_TYPES.join(","),
+                  class: "hidden",
+                  data: {
+                    reading_list_modal_target: "coverInput",
+                    action: "change->reading-list-modal#previewCover"
+                  } %>
+          </div>
+        <% end %>
+
+        <!-- Name Input -->
+        <%= f.label :title, "Name",
+              for: "#{edit_mode ? "edit" : "create"}-list-modal-title-input",
+              class: "label" %>
+        <%= f.text_field :title,
+              id: "#{edit_mode ? "edit" : "create"}-list-modal-title-input",
+              placeholder: "My Reading List",
+              required: true,
+              maxlength: 100,
+              class: "input input-bordered w-full outline-none focus:border-primary bg-base-200 shadow-none",
+              data: {
+                action: "input->reading-list-modal#validateForm",
+                reading_list_modal_target: "titleInput"
+              } %>
+        <p data-reading-list-modal-target="titleError" class="text-error text-sm mt-1 hidden"></p>
+
+        <!-- Description Textarea -->
+        <%= f.label :description, class: "label" %>
+        <%= f.text_area :description,
+              placeholder: "What's this list about?",
+              maxlength: 500,
+              rows: 3,
+              class: "textarea textarea-bordered bg-base-200 w-full resize-none outline-none shadow-none focus:border-primary",
+              data: { reading_list_modal_target: "descriptionInput" } %>
+      </fieldset>
+
+      <!-- Actions -->
+      <div class="modal-action mt-6">
+        <button
+          type="button"
+          class="btn btn-ghost"
+          data-action="click->reading-list-modal#close"
+        >
+          Cancel
+        </button>
+        <%= f.submit edit_mode ? "Save" : "Create",
+              class: "btn btn-primary",
+              data: { reading_list_modal_target: "submitBtn" },
+              disabled: !edit_mode %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Backdrop click to close -->
+  <form method="dialog" class="modal-backdrop">
+    <button data-action="click->reading-list-modal#close">close</button>
+  </form>
+</dialog>

@@ -1,0 +1,49 @@
+<%# Confirmation modal for removing an article from the library %>
+<%# Usage: render "shared/remove_article_modal" %>
+
+<dialog
+  id="remove-article-modal"
+  class="modal"
+  data-controller="remove-article-modal"
+  data-action="modal:openRemoveArticle@window->remove-article-modal#openFromEvent"
+  data-remove-article-modal-csrf-token-value="<%= form_authenticity_token %>"
+>
+  <div class="modal-box">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-lg">Remove Article</h3>
+      <form method="dialog">
+        <button
+          class="btn btn-sm btn-circle btn-ghost shadow-none text-base text-base-content/50 hover:text-white"
+          data-action="click->remove-article-modal#close"
+        >
+          <%= icon_tag "x", class: "w-5 h-5" %>
+        </button>
+      </form>
+    </div>
+
+    <p class="text-base-content/70 mb-6">
+      Are you sure you want to remove this article from your library?
+    </p>
+
+    <div class="modal-action mt-0">
+      <button
+        type="button"
+        class="btn btn-ghost"
+        data-action="click->remove-article-modal#close"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-error"
+        data-action="click->remove-article-modal#confirm"
+      >
+        Remove
+      </button>
+    </div>
+  </div>
+
+  <form method="dialog" class="modal-backdrop">
+    <button data-action="click->remove-article-modal#close">close</button>
+  </form>
+</dialog>

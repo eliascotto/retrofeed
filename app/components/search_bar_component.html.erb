@@ -1,0 +1,40 @@
+<form <%= tag.attributes(form_attributes) %>>
+  <div class="relative">
+    <%= helpers.icon_tag "search",
+      class: "absolute #{icon_left_position} top-1/2 transform -translate-y-1/2 #{icon_size_class} text-base-content/40 pointer-events-none z-10" %>
+    <%= render InputComponent.new(
+      type: :text,
+      name: "q",
+      value: @value,
+      autofocus: @autofocus,
+      autocomplete: "off",
+      placeholder: @placeholder,
+      size: @size,
+      class: input_classes,
+      **input_data_attributes
+    ) %>
+    <% if @show_shortcut_tag %>
+      <kbd class="absolute right-2 top-1/2 transform -translate-y-1/2 text-base-content/40 pointer-events-none z-10 text-xs uppercase tracking-widest">
+        <%= SHORTCUT_KEY %>
+      </kbd>
+    <% end %>
+    <% if show_clear_button? %>
+      <button
+        type="button"
+        <% if clear_button_action %>data-action="<%= clear_button_action %>"<% end %>
+        class="absolute <%= icon_right_position %> top-1/2 transform -translate-y-1/2 text-base-content/40
+          hover:text-base-content btn btn-ghost btn-sm btn-circle text-base
+          p-0 <%= clear_button_size %> flex items-center justify-center z-10"
+      >
+        <%= helpers.icon_tag "x", class: icon_size_class %>
+      </button>
+    <% end %>
+  </div>
+  <% @hidden_fields.each do |name, config| %>
+    <% if config.is_a?(Hash) %>
+      <%= tag.input(type: "hidden", name: name, value: config[:value], **hidden_field_data_attrs(config)) %>
+    <% else %>
+      <input type="hidden" name="<%= name %>" value="<%= config %>">
+    <% end %>
+  <% end %>
+</form>

@@ -1,0 +1,82 @@
+@layer components {
+  .icon {
+    -webkit-touch-callout: none;
+    background-color: currentColor;
+    block-size: var(--icon-size, 1em);
+    display: inline-block;
+    flex-shrink: 0;
+    inline-size: var(--icon-size, 1em);
+    mask-image: var(--svg);
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: var(--icon-size, 1em);
+    pointer-events: none;
+    position: relative;
+    user-select: none;
+  }
+
+  img.icon {
+    background: none;
+  }
+
+  .icon--sm { --icon-size: 0.875em; }
+  .icon--md { --icon-size: 1.125em; }
+  .icon--lg { --icon-size: 1.5em; }
+  .icon--xl { --icon-size: 2em; }
+
+  .icon--a-large-small { --svg: url("a-large-small.svg"); }
+  .icon--arrow-down-wide-narrow { --svg: url("arrow-down-wide-narrow.svg"); }
+  .icon--arrow-left { --svg: url("arrow-left.svg"); }
+  .icon--arrow-right { --svg: url("arrow-right.svg"); }
+  .icon--arrow-up-wide-narrow { --svg: url("arrow-up-wide-narrow.svg"); }
+  .icon--at-sign { --svg: url("at-sign.svg"); }
+  .icon--bookmark { --svg: url("bookmark.svg"); }
+  .icon--camera { --svg: url("camera.svg"); }
+  .icon--check { --svg: url("check.svg"); }
+  .icon--chevron-right { --svg: url("chevron-right.svg"); }
+  .icon--chevrons-right-left { --svg: url("chevrons-right-left.svg"); }
+  .icon--clipboard { --svg: url("clipboard.svg"); }
+  .icon--dices { --svg: url("dices.svg"); }
+  .icon--dot { --svg: url("dot.svg"); }
+  .icon--ellipsis { --svg: url("ellipsis.svg"); }
+  .icon--external-link { --svg: url("external-link.svg"); }
+  .icon--file { --svg: url("file.svg"); }
+  .icon--glasses { --svg: url("glasses.svg"); }
+  .icon--library { --svg: url("library.svg"); }
+  .icon--globe { --svg: url("globe.svg"); }
+  .icon--hash { --svg: url("hash.svg"); }
+  .icon--home { --svg: url("home.svg"); }
+  .icon--hourglass { --svg: url("hourglass.svg"); }
+  .icon--info { --svg: url("info.svg"); }
+  .icon--list { --svg: url("list.svg"); }
+  .icon--list-x { --svg: url("list-x.svg"); }
+  .icon--lock { --svg: url("lock.svg"); }
+  .icon--logo { --svg: url("logo.svg"); }
+  .icon--logo-full { --svg: url("logo-full.svg"); }
+  .icon--logout { --svg: url("logout.svg"); }
+  .icon--mail { --svg: url("mail.svg"); }
+  .icon--menu { --svg: url("menu.svg"); }
+  .icon--move-horizontal { --svg: url("move-horizontal.svg"); }
+  .icon--newspaper { --svg: url("newspaper.svg"); }
+  .icon--palette { --svg: url("palette.svg"); }
+  .icon--plus { --svg: url("plus.svg"); }
+  .icon--circle-plus { --svg: url("circle-plus.svg"); }
+  .icon--refresh-cw { --svg: url("refresh-cw.svg"); }
+  .icon--search { --svg: url("search.svg"); }
+  .icon--settings { --svg: url("settings.svg"); }
+  .icon--smartphone { --svg: url("smartphone.svg"); }
+  .icon--square-pen { --svg: url("square-pen.svg"); }
+  .icon--trash { --svg: url("trash.svg"); }
+  .icon--triangle-alert { --svg: url("triangle-alert.svg"); }
+  .icon--user { --svg: url("user.svg"); }
+  .icon--undo { --svg: url("undo.svg"); }
+  .icon--x { --svg: url("x.svg"); }
+  .icon--eye-off { --svg: url("eye-off.svg"); }
+  .icon--cloud-download { --svg: url("cloud-download.svg"); }
+  .icon--cloud-check { --svg: url("cloud-check.svg"); }
+  .icon--cloud-alert { --svg: url("cloud-alert.svg"); }
+  .icon--panel-right-close { --svg: url("panel-right-close.svg"); }
+  .icon--panel-right-open { --svg: url("panel-right-open.svg"); }
+  .icon--circle-check { --svg: url("circle-check.svg"); }
+  .icon--circle-alert { --svg: url("circle-alert.svg"); }
+}

@@ -1,0 +1,114 @@
+<% if @use_popover_on_mobile %>
+  <%# Desktop version: CSS focus dropdown (hidden on mobile) %>
+  <div class="hidden sm:block">
+    <div class="<%= dropdown_classes %>">
+      <%# Menu trigger %>
+      <div tabindex="0" role="button" class="<%= trigger_classes %>">
+        <% if trigger? %>
+          <%= trigger %>
+        <% else %>
+          <% if @trigger_icon.present? %>
+            <%= helpers.icon_tag @trigger_icon, class: "w-4 h-4" %>
+          <% end %>
+          <% if @trigger_label.present? %>
+            <%= @trigger_label %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <%# Dropdown menu %>
+      <ul tabindex="-1" class="<%= menu_classes %>">
+        <% items.each do |item| %>
+          <li><%= item %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <%# Mobile version: Popover API (visible on mobile only) %>
+  <div class="block sm:hidden">
+    <%#
+      Full-screen centered popover with backdrop.
+      The popover covers the full screen and centers the menu content.
+      A clickable backdrop allows closing by tapping outside.
+    %>
+    <style>
+      #<%= popover_id %>:popover-open {
+        position: fixed !important;
+        inset: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+      }
+      #<%= popover_id %>::backdrop {
+        background: rgba(0, 0, 0, 0.3);
+      }
+    </style>
+
+    <%# Popover trigger button %>
+    <button type="button"
+            popovertarget="<%= popover_id %>"
+            class="<%= trigger_classes %>"
+            style="anchor-name: <%= anchor_name %>">
+      <% if trigger? %>
+        <%= trigger %>
+      <% else %>
+        <% if @trigger_icon.present? %>
+          <%= helpers.icon_tag @trigger_icon, class: "w-4 h-4" %>
+        <% end %>
+        <% if @trigger_label.present? %>
+          <%= @trigger_label %>
+        <% end %>
+      <% end %>
+    </button>
+
+    <%# Popover menu - full screen with backdrop %>
+    <div popover="auto" id="<%= popover_id %>">
+      <%# Clickable backdrop to close popover when tapping outside content %>
+      <button type="button"
+              popovertarget="<%= popover_id %>"
+              popovertargetaction="hide"
+              class="absolute inset-0 w-full h-full cursor-default"
+              aria-label="Close menu">
+      </button>
+      <%# Menu content positioned above the backdrop %>
+      <ul class="<%= popover_menu_classes %> relative z-10">
+        <% items.each do |item| %>
+          <li><%= item %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% else %>
+  <%# CSS focus version only %>
+  <div class="<%= dropdown_classes %>">
+    <%# Menu trigger %>
+    <div tabindex="0" role="button" class="<%= trigger_classes %>">
+      <% if trigger? %>
+        <%= trigger %>
+      <% else %>
+        <% if @trigger_icon.present? %>
+          <%= helpers.icon_tag @trigger_icon, class: "w-4 h-4" %>
+        <% end %>
+        <% if @trigger_label.present? %>
+          <%= @trigger_label %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <%# Dropdown menu %>
+    <ul tabindex="-1" class="<%= menu_classes %>">
+      <% items.each do |item| %>
+        <li><%= item %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

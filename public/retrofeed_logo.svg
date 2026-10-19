@@ -1,0 +1,20 @@
+<svg width="270" height="270" viewBox="541 0 270 270" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <mask id="mask0_7_98" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="271" y="6" width="541" height="541">
+    <circle cx="541.121" cy="276.251" r="240.04" transform="rotate(90.1345 541.121 276.251)" stroke="white" style="stroke:white;stroke-opacity:1;" stroke-width="60.0099"/>
+  </mask>
+  <g mask="url(#mask0_7_98)">
+    <rect x="540.488" y="-264.471" width="540.089" height="540.089" fill="#E93633" style="fill:#E93633;fill:color(display-p3 0.9137 0.2118 0.2000);fill-opacity:1;"/>
+  </g>
+  <mask id="mask1_7_98" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="360" y="96" width="361" height="361">
+    <circle cx="540.91" cy="276.04" r="150.025" transform="rotate(90.1345 540.91 276.04)" stroke="#E4D11F" style="stroke:#E4D11F;stroke:color(display-p3 0.8941 0.8196 0.1216);stroke-opacity:1;" stroke-width="60.0099"/>
+  </mask>
+  <g mask="url(#mask1_7_98)">
+    <rect x="540.488" y="-84.4417" width="360.06" height="360.06" fill="#EE6831" style="fill:#EE6831;fill:color(display-p3 0.9333 0.4078 0.1922);fill-opacity:1;"/>
+  </g>
+  <mask id="mask2_7_98" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="450" y="185" width="181" height="181">
+    <circle cx="540.488" cy="275.618" r="90.0149" fill="#FF0000" style="fill:#FF0000;fill:color(display-p3 1.0000 0.0000 0.0000);fill-opacity:1;"/>
+  </mask>
+  <g mask="url(#mask2_7_98)">
+    <rect x="540.488" y="95.5881" width="180.03" height="180.03" fill="#EA9F1A" style="fill:#EA9F1A;fill:color(display-p3 0.9176 0.6235 0.1020);fill-opacity:1;"/>
+  </g>
+</svg>

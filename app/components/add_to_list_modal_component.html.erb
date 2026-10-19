@@ -1,0 +1,57 @@
+<%# Add to List Modal component using DaisyUI modal with Stimulus controller %>
+<dialog
+  id="add-to-list-modal"
+  class="modal"
+  data-controller="add-to-list-modal"
+  data-action="modal:openAddToList@window->add-to-list-modal#openFromEvent"
+  data-add-to-list-modal-lists-value="<%= lists_json %>"
+  data-add-to-list-modal-csrf-token-value="<%= form_authenticity_token %>"
+>
+  <div class="modal-box max-w-lg">
+    <!-- Header with close button -->
+    <div class="flex items-center justify-between mb-2">
+      <div class="flex-1">
+        <%= render InputComponent.new(
+          id: "add-to-list-search-input",
+          type: :text,
+          name: "search",
+          placeholder: "Type a list name",
+          autocomplete: "off",
+          variant: :ghost,
+          class: "w-full text-md outline-none bg-transparent",
+          "data-add-to-list-modal-target": "searchInput",
+          "data-action": "input->add-to-list-modal#filter keydown->add-to-list-modal#handleKeydown"
+        ) %>
+      </div>
+      <form method="dialog">
+        <button
+          class="btn btn-sm btn-circle btn-ghost shadow-none text-base text-base-content/50 hover:text-white"
+          data-action="click->add-to-list-modal#close">
+          <%= helpers.icon_tag "x", class: "w-4 h-4" %>
+        </button>
+      </form>
+    </div>
+
+    <!-- List container -->
+    <div class="max-h-80 overflow-y-auto -mx-2" data-add-to-list-modal-target="listContainer">
+      <!-- Items will be rendered by the Stimulus controller -->
+    </div>
+
+    <!-- Empty state (hidden by default) -->
+    <div class="text-center py-4 text-base-content/50 hidden" data-add-to-list-modal-target="emptyState">
+      No existing lists found.
+    </div>
+
+    <!-- Keyboard shortcuts hint -->
+    <div class="border-t border-base-200 dark:border-base-content/10 mt-4 pt-3 text-xs text-base-content/50 flex justify-center gap-4">
+      <span><kbd class="kbd kbd-xs">↑</kbd> <kbd class="kbd kbd-xs">↓</kbd> to navigate</span>
+      <span><kbd class="kbd kbd-xs">↵</kbd> to add</span>
+      <span><kbd class="kbd kbd-xs">Esc</kbd> to dismiss</span>
+    </div>
+  </div>
+
+  <!-- Backdrop click to close -->
+  <form method="dialog" class="modal-backdrop">
+    <button data-action="click->add-to-list-modal#close">close</button>
+  </form>
+</dialog>

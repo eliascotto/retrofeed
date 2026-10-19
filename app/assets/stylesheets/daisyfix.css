@@ -1,0 +1,11 @@
+@layer base {
+  .btn,
+  .btn:hover,
+  .modal-backdrop button {
+    cursor: default !important;
+  }
+
+  .btn:active:not(.btn-active) {
+    translate: 0;
+  }
+}

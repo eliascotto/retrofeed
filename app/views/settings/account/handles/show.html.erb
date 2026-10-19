@@ -1,0 +1,35 @@
+<main class="flex-1 flex flex-col min-w-0 h-full">
+  <%= render PageHeaderComponent.new(title: "Handle", back_path: settings_account_path, size: :small) %>
+
+  <div class="flex-1 overflow-y-auto">
+    <div class="mx-auto px-4 py-6">
+      <%= form_with model: @user, url: settings_account_handle_path, method: :patch, local: true, class: "space-y-6" do |f| %>
+        <% if @user.errors.any? %>
+          <div class="alert alert-error">
+            <ul class="list-disc list-inside">
+              <% @user.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="relative">
+          <div class="label">
+            <span class="label-text">Handle</span>
+          </div>
+          <%= icon_tag "at-sign",
+            class: "absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/60 pointer-events-none z-10" %>
+          <%= render InputComponent.new(name: "user[handle]", value: @user.handle, variant: :bordered, required: true, placeholder: "Your unique username", class: "w-full pl-9") %>
+          <div class="label">
+            <span class="label-text-alt text-base-content/60 dark:text-base-content/60">Your unique username (3-25 characters)</span>
+          </div>
+        </div>
+
+        <div class="">
+          <button type="submit" class="btn btn-primary btn-block">Update Handle</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</main>

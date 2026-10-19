@@ -1,0 +1,62 @@
+@layer components {
+  .flashes {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    gap: 10px;
+    justify-content: right;
+    position: fixed;
+    bottom: 140px;
+    right: 15px;
+    z-index: var(--z-flash);
+  }
+
+  @media (width >= 48rem) {
+    .flashes {
+      bottom: 80px;
+      right: 15px;
+    }
+  }
+
+  /* lg */
+  @media (width >= 64rem) {
+    .flashes {
+      right: 50%;
+      bottom: 30px;
+      align-items: center;
+      transform: translateX(50%);
+    }
+  }
+
+  .flash__item {
+    animation: appear-then-fade 3s 300ms both;
+    background-color: var(--color-background-dark-darkest);
+    border-radius: 0.4em;
+    color: var(--color-ink);
+    border: 1px solid var(--color-gray-600);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 0.8rem;
+    inline-size: max-content;
+    max-inline-size: 90vw;
+    padding: 0.5em 1.2em;
+  }
+
+  .flash__icon {
+    color: var(--flash-icon-color, currentColor);
+    flex-shrink: 0;
+  }
+
+  .flash__item--success { --flash-icon-color: oklch(var(--lch-green-dark)); }
+  .flash__item--error   { --flash-icon-color: oklch(var(--lch-red-dark)); }
+  .flash__item--warning { --flash-icon-color: oklch(var(--lch-yellow-dark)); }
+  /* info: no --flash-icon-color override, inherits currentColor */
+
+  [data-theme="dark"] .flash__item {
+    /* dark-mode tuning if base vars need overriding */
+    .flash__item--success { --flash-icon-color: oklch(var(--lch-green-dark)); }
+    .flash__item--error   { --flash-icon-color: oklch(var(--lch-red-dark)); }
+    .flash__item--warning { --flash-icon-color: oklch(var(--lch-yellow-dark)); }
+  }
+}

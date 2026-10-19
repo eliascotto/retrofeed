@@ -1,0 +1,4 @@
+web: bin/rails server -b 0.0.0.0
+css: bin/rails tailwindcss:watch
+jobs: bin/jobs
+node: EXTRACTOR_PORT=3880 npx nodemon --watch node_scripts --ext js node_scripts/extractor.js

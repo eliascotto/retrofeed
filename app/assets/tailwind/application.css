@@ -1,0 +1,84 @@
+/*
+ * This is a manifest file that'll be compiled into application.css.
+ *
+ * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
+ * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
+ * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
+ * depending on specificity.
+ *
+ * Consider organizing styles into separate files for maintainability.
+ */
+@import "tailwindcss";
+
+@plugin "@tailwindcss/typography";
+@plugin "./plugins/daisyui.js" {
+  logs: false;
+}
+
+/**
+ * Others Orange colors
+ --------------------------------
+ * #FF6B35 oklch(0.68 0.21 38)
+ * #F7931E oklch(0.74 0.18 58)
+ * #D35400 oklch(0.56 0.17 48)
+ * #D17033 oklch(0.52 0.15 45)
+ */
+
+ /* Swift orange color button
+  * 
+  * linear-gradient(to bottom right, #ff7f00, #f05238)
+  */
+
+@plugin "./plugins/daisyui-theme.mjs" {
+  name: "light";
+  --color-primary: oklch(83% 0.128 66.29);
+  --color-primary-content: oklch(28% 0.091 267.935);
+}
+
+@plugin "./plugins/daisyui-theme.mjs" {
+  name: "dark";
+  default: true;
+  --color-primary: oklch(0.674 0.25 50.8);
+  --color-base-100: #10161d;
+  --color-base-200: rgba(255, 255, 255, 0.05);
+}
+
+/** 
+ * Tailwind CSS overrides
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Invert colors and rotate hue by 180 degrees */
+    --svg-filter: invert(93%) hue-rotate(180deg);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* No filter */
+    --svg-filter: none;
+  }
+}
+
+@layer base {
+  pre.highlight {
+    font-size: 13px;
+    line-height: 10px !important;
+    overflow: auto;
+
+    @apply px-4 py-6 rounded-md;
+  }
+
+  .prose svg {
+    fill: currentColor;
+  }
+}
+
+@layer components {
+  .tooltip-box {
+    @apply bg-gray-800 text-neutral-content text-sm 
+           px-4 py-2 rounded z-50
+           max-w-xs
+           pointer-events-none;
+  }
+}

@@ -1,0 +1,47 @@
+<main class="flex-1 flex flex-col min-w-0 h-full">
+  <%= render PageHeaderComponent.new(title: "Password", back_path: settings_account_path, size: :small) %>
+
+  <div class="flex-1 overflow-y-auto">
+    <div class="mx-auto px-4 py-6">
+      <%= form_with url: settings_account_password_path, method: :patch, local: true, class: "space-y-6" do |f| %>
+        <% if @user.errors.any? %>
+          <div class="alert alert-error">
+            <ul class="list-disc list-inside">
+              <% @user.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div>
+          <div class="label">
+            <span class="label-text">Current Password</span>
+          </div>
+          <%= f.password_field :current_password, name: "current_password", class: "input input-bordered w-full", required: true %>
+        </div>
+
+        <div>
+          <div class="label">
+            <span class="label-text">New Password</span>
+          </div>
+          <%= f.password_field :password, name: "user[password]", class: "input input-bordered w-full", required: true %>
+          <div class="label">
+            <span class="label-text-alt text-base-content/60 dark:text-base-content/60">Minimum 8 characters</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="label">
+            <span class="label-text">Confirm New Password</span>
+          </div>
+          <%= f.password_field :password_confirmation, name: "user[password_confirmation]", class: "input input-bordered w-full", required: true %>
+        </div>
+
+        <div class="pt-4">
+          <%= f.submit "Update Password", class: "btn btn-primary w-full" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</main>

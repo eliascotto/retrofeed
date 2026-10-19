@@ -1,0 +1,22 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  website: one
+  title: First Article
+  url: https://example.com/articles/first-article
+  content_html: MyText
+  publication_date: 2025-12-01
+  raw_published_at: MyString
+  last_content_fetched_at: 2025-12-01
+  slug: first-article
+  status: pending
+
+two:
+  website: two
+  title: Second Article
+  url: https://example.com/articles/second-article
+  content_html: MyText
+  publication_date: 2025-12-01
+  raw_published_at: MyString
+  slug: second-article
+  status: pending

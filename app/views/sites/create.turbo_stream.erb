@@ -1,0 +1,7 @@
+<%= turbo_stream.replace "add-site-modal" do %>
+  <%= render "layouts/shared/add_site_modal" %>
+<% end %>
+
+<%= turbo_stream.append "flashes" do %>
+  <%= render "layouts/shared/flash", message: "Adding #{@website.domain}…", level: :info %>
+<% end %>

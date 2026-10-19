@@ -1,0 +1,33 @@
+<div class="header">
+  <h1>Retrofeed Admin Alert</h1>
+</div>
+
+<div class="content">
+  <p>Hi <%= @admin.handle %>,</p>
+
+  <% if @status == "over" %>
+    <p style="color: #dc2626; font-weight: bold;">
+      The daily email limit has been exceeded.
+    </p>
+    <p>
+      Today's email count: <strong><%= @count %> / <%= @limit %></strong>
+    </p>
+    <p>
+      No more emails can be sent until tomorrow. New user registrations and email confirmations will be delayed.
+    </p>
+  <% else %>
+    <p style="color: #d97706; font-weight: bold;">
+      The daily email limit is being approached.
+    </p>
+    <p>
+      Today's email count: <strong><%= @count %> / <%= @limit %></strong>
+    </p>
+    <p>
+      Consider upgrading your Resend plan if email volume continues to grow.
+    </p>
+  <% end %>
+</div>
+
+<div class="footer">
+  <p>This is an automated alert from Retrofeed.</p>
+</div>

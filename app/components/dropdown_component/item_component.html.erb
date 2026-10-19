@@ -1,0 +1,36 @@
+<% if @hr %>
+  <%# Horizontal rule item - renders nothing %>
+<% elsif @href.present? && !@disabled %>
+  <%= link_to @href, class: item_classes, data: merged_data_attributes, **@html_options do %>
+    <div class="<%= item_content_classes %>">
+      <% if @icon_left %>
+        <%= render_icon %>
+        <span class="text-[13px]"><%= @label %></span>
+      <% else %>
+        <span class="text-[13px]"><%= @label %></span>
+        <%= render_icon %>
+      <% end %>
+    </div>
+  <% end %>
+<% else %>
+  <button type="button"
+          class="<%= item_classes %>"
+          <%= "disabled" if @disabled %>
+          data-dropdown-action="true"
+          <% @data.each do |key, value| %>
+            data-<%= key.to_s.dasherize %>="<%= value %>"
+          <% end %>
+          <% @html_options.each do |key, value| %>
+            <%= key %>="<%= value %>"
+          <% end %>>
+    <div class="<%= item_content_classes %>">
+      <% if @icon_left %>
+        <%= render_icon %>
+        <span class="text-[13px]"><%= @label %></span>
+      <% else %>
+        <span class="text-[13px]"><%= @label %></span>
+        <%= render_icon %>
+      <% end %>
+    </div>
+  </button>
+<% end %>
